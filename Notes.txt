@@ -1,0 +1,30 @@
+General Overview/Structure of the Tutorial:
+
+1. Start with some basic terminology we use when talking about loops
+   - Picture from Loop Fusion presentation
+   - other terminology
+2. Loop simplified/canonical form
+3. Rotated loops
+4. Loop Closed SSA form
+5. Auxiliary data structures
+
+
+General Guidelines
+- Give examples whenever possible
+- Provide commands being used whenever possible
+
+
+
+Questions
+- Live demo?
+- Evolving example so you have a working loop optimization at the end of the
+tutorial
+  - Use this example to illustrate several aspects of loop optimizations
+    - Both things that work, and things that do not work
+- If we do a live example, what all do we want to include in it:
+  - Pass manager - which one?
+  - Loop opt pipeline or plugin?
+  - Preserves Analysis
+    - Updating data structures like DomTree, SCEV, etc.
+- Work off of fixed LLVM release for reproducability (i.e., LLVM 9)?
+- Feedback on success/failure
