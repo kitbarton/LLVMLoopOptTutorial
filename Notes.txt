@@ -1,5 +1,7 @@
 General Overview/Structure of the Tutorial:
 
+Outline
+-------
 1. Start with some basic terminology we use when talking about loops
    - Picture from Loop Fusion presentation
    - other terminology
@@ -7,11 +9,25 @@ General Overview/Structure of the Tutorial:
 3. Rotated loops
 4. Loop Closed SSA form
 5. Auxiliary data structures
+6. Write a loop pass, incrementally, that does *something* on a loop (nest).
+   - Show how to add it to the pipeline
+   - Show how to test for canonical form and other conditions (i.e., rotated
+   loops, guarded loops, etc).
+   - Show how to update data structures
+     - Preserves::None
+     - Preserves::Some
+     - Preserves::All
+   - Show how to report useful information
+     - Statistics
+     - ORE
+7. Useful References
+
 
 
 General Guidelines
-- Give examples whenever possible
-- Provide commands being used whenever possible
+------------------
+  - Give examples whenever possible
+  - Provide commands being used whenever possible
 
 
 
