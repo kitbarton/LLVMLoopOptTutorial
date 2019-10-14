@@ -32,6 +32,7 @@
 \usepackage{amssymb}
 \usepackage{capt-of}
 \usepackage{hyperref}
+\usepackage{comment}
 \usetheme{default}
 
 % I'm not sure what exactly this is for
@@ -49,6 +50,7 @@
 \usepackage{minibox}
 \usepackage{tikz}
 \usetikzlibrary{decorations.text}
+\usetikzlibrary{shapes.arrows}
 \usetikzlibrary{shadows}
 \usetikzlibrary{fit}
 \usetikzlibrary{graphs}
@@ -61,6 +63,12 @@
 \pgfdeclarelayer{foreground}
 \pgfdeclarelayer{foreforeground}
 \pgfsetlayers{backbackbackground,backbackground,background,main,foreground,foreforeground}
+
+\usepackage{minted}
+\newmintinline{c}{style=bw}
+\newmintinline{cpp}{style=bw}
+\newmintinline{text}{style=bw}
+\usemintedstyle{borland}
 
 \lstset{
   basicstyle=\ttfamily,
@@ -91,7 +99,7 @@
 \institute[IBM Canada and ANL] % (optional, but mostly needed)
 {
   \inst{1}
-  IBM Canada
+  IBM Canada\\
   \inst{2}
   Argonne National Laboratory
 }
@@ -300,13 +308,59 @@
 \resizebox{\my@resizeenv@width}{!}{\usebox{\my@resizeenv@TempBox}}%
 }%
 
+\newsavebox{\my@scale@Lrbox}
+\newcommand*{\my@scale@Percentage}{}
+\newenvironment*{scaleenv}[1]{%
+\renewcommand*{\my@scale@Percentage}{#1}%
+\begin{lrbox}{\my@scale@Lrbox}%
+}{%
+\end{lrbox}%
+\scalebox{\my@scale@Percentage}{\usebox{\my@scale@Lrbox}}%
+}%
+
+\newsavebox{\my@scalepar@TempBox}
+\newenvironment{scalepar}[1]{%
+\def\my@DoScalePar{\scalebox{#1}}%
+\begin{lrbox}{\my@scalepar@TempBox}%
+\pgfmathparse{\textwidth/#1}%
+\begin{minipage}{\pgfmathresult pt}%
+}{%
+\end{minipage}%
+\end{lrbox}%
+\my@DoScalePar{\usebox{\my@scalepar@TempBox}}%
+}
+
+
 \newenvironment{resizepar}{%
 \begin{resizeenv}{\textwidth}%
 }{%
 \end{resizeenv}%
 }%
+
+\newenvironment{tightcenter}{%
+  \setlength\topsep{0pt}
+  \setlength\parskip{0pt}
+  \begin{center}
+}{%
+  \end{center}
+}
+
+\newcommand{\anchorbox}[3][]{%
+   \tikz[remember picture,baseline=(#2.base)] \node[inner sep=0,outer sep=0,minimum size=0pt,#1](#2) {\minibox{#3}};%
+}
 \makeatother
 
+\newcommand*\arrowdown[1]{%
+\begin{tikzpicture}%
+%\node[text width=\textwidth,outer ysep=0pt,inner ysep=0pt](text){};
+\node[draw=teal!90!black,very thick,single arrow,rotate=-90,anchor=center,minimum width=8mm,minimum height=8mm,outer ysep=0pt,rounded corners=1pt,drop shadow,shade,top color=teal!10,bottom color=teal,shading angle=15](arrow) {};
+\ifthenelse{\equal{#1}{}}{}{\node[right=3mm] at (arrow.north) {\minibox{#1}};}
+%\draw[blue] (current bounding box.north west) rectangle (current bounding box.south east);
+\end{tikzpicture}%
+}
+
+\definecolor{darkmagenta}{rgb}{0.55, 0.0, 0.55}
+\definecolor{darkspringgreen}{rgb}{0.09, 0.45, 0.27}
 
 \begin{document}
 
@@ -331,6 +385,83 @@
   % animations, if everyone is OK with how it looks.
   \includegraphics[width=\textwidth]{figures/LoopRepresentation.png}
 \end{frame}
+
+
+
+\begin{frame}[label=loopnormalform,fragile]{Canonical Loop Form} %MK
+\framesubtitle{Feel free to re-use/eliminate this slide; maybe it's useful}
+\begin{columns}
+\begin{column}{0.6\textwidth}
+\begin{itemize}
+\item Loop identified by header
+\item Preheader
+\item Single backedge/latch
+\item Exits only from loop
+\item Loop-rotated form\\(at least one iteration / loop guard)
+    \begin{itemize}
+    \item Can hoist invariant loads
+    \end{itemize}
+\item Loop-Closed SSA
+
+%\item Responsible passes
+%\begin{itemize}
+%\item LoopRotate
+%\item LoopSimplify
+%\item IndVarSimplify
+%\item LCSSA
+%\end{itemize}
+\end{itemize}
+
+
+\end{column}
+\begin{column}{0.4\textwidth}
+\begin{tightcenter}
+\begin{scaleenv}{0.7}
+\begin{tikzpicture}
+\tikzset{tight/.style={inner sep=0pt,outer sep=0pt,minimum size=0pt}}
+\tikzset{invisible/.style={draw=none,fill=none,text=white}}
+
+\tikzset{node/.style={line width=1.2pt,rounded corners,bottom color=white,shading angle=15,drop shadow}}
+\tikzset{bb/.style={node,draw=teal,top color=teal!50}}
+
+\graph [layered layout,edges={->},sibling distance=2cm,level distance=12mm]{
+    enter1[as={}];
+    enter2[as={}];
+    guard[bb,as={Guard}];
+    preheader[bb,as={Preheader}];
+    header[bb,as={Header}];
+    exiting[bb,as={Exiting}];
+    exit[bb,as={Exit}];
+    merge[bb,as={\phantom{MMM}}];
+    latch[bb,as={Latch}];
+    afterexit[as={}];
+    
+    {enter1,enter2}->guard;
+    guard->preheader;
+    guard->merge;
+    preheader->header;  
+    header->exiting;
+    exiting->exit;
+%    exiting->latch;
+    latch->[thick,out=90,in=180]header;
+    exit->merge;
+    merge->afterexit;
+    
+    {[edge={draw=none}]
+      header->latch,
+      latch->exiting
+    };
+};
+
+\path (latch) edge[draw=none,decorate,decoration={text along path,text={Backedge}},out=90,in=180] (header);
+\path (exiting) edge[->,in=270,out=180] (latch);
+\end{tikzpicture}
+\end{scaleenv}
+\end{tightcenter}
+\end{column}
+\end{columns}
+\end{frame}
+
 
 \begin{frame}[label={sec:orgac3eb21}]{Other Terminology}
   \begin{block}{}
@@ -357,13 +488,117 @@
 Describe loop canonical form - what exactly this entails, \textit{etc}.
 \end{frame}
 
-\begin{frame}[label={sec:lcssa}]{Loop Closed SSA Form}
-% MK: TODO
-    What exactly is this? When is it useful? What are the implications afterwards?
+
+\begin{frame}[fragile,label={sec:lcssa}]{Loop-Closed SSA Form}
+%    What exactly is this? When is it useful? What are the implications afterwards?
+
+\begin{scalepar}{0.7}
+\begin{minted}{llvm}
+loop:
+  %indvar = phi i64 [%indvar.next, %loop], [0, %preheader]
+  %sum = phi i64 [%sum.next, %loop], [0, %preheader]
+ 
+  %sum.next = add i64 %sum, %indvar
+  
+  %indvar.next = add i64 %indvar, 1
+  %cond = icmp ne i64 %indvar.next, 64
+  br i1 %cond, label %loop, label %exit
+  
+exit:
+  %sum.result = phi i64 [%sum.next, %loop]
+\end{minted}
+\end{scalepar}
+
+\bigskip
+
+\begin{itemize}
+\item Eliminated by InstCombine
+\item (legacy) LoopPassManager always ensures LCSSA
+    \begin{itemize}
+    \item Also means that passes have to preserve LCSSA
+    \end{itemize}
+\item LoopVectorizePass (FunctionPass) forms and preserves LCSSA itself
+\end{itemize}
+
+Advantages:
+\begin{itemize}
+\item In non-LCSSA form, need to specify the context in each loop
+\begin{minted}{cpp}
+const SCEV *ScalarEvolution::getSCEVAtScope(Value *V, const Loop *L)
+\end{minted}
+
+\item Loop transformations are loop-local: \cppinline{replaceAllUsesWith} changes only the exit block
+\end{itemize}
+
 \end{frame}
 
+
+%MK: Will probably keep just one LCSSA slide
+\begin{frame}[fragile,label=lcssa,shrink=15]{Loop-Closed SSA Form} %MK
+\framesubtitle{Disadvantages}
+
+\tikzset{anchorstyle1/.style={draw=teal,line width=0.6pt,rounded corners=2pt,top color=teal!50,bottom color=white,shading angle=15}}
+\tikzset{arrowedge1/.style={draw=teal,line width=1.2pt,rounded corners,-To[]}}
+
+\tikzset{anchorstyle2/.style={draw=blue,line width=0.6pt,rounded corners=2pt,top color=blue!50,bottom color=white,shading angle=15}}
+\tikzset{arrowedge2/.style={draw=blue,line width=1.2pt,rounded corners,-To[]}}
+
+\tikzset{anchorstyle3/.style={draw=darkmagenta,line width=0.6pt,rounded corners=2pt,top color=darkmagenta!50,bottom color=white,shading angle=15}}
+\tikzset{arrowedge3/.style={draw=darkmagenta,line width=1.2pt,rounded corners,-To[]}}
+
+\begin{columns}
+\begin{column}{0.4\textwidth}
+\begin{minted}[escapeinside=||]{c}
+for (int i = 0; i < n; i+=1) 
+    for (int j = 0; j < m; j+=1)
+        |\anchorbox[anchorstyle1]{sumdef}{sum}| += i*j;
+        
+use(|\anchorbox[anchorstyle1]{sumuse}{sum}|);
+\end{minted}
+\begin{tikzpicture}[overlay,remember picture]%
+\path (sumdef) edge[arrowedge1] (sumuse);
+\end{tikzpicture}%
+
+\begin{tightcenter}
+\arrowdown{LCSSA}
+\end{tightcenter}
+
+\begin{minted}[escapeinside=||]{c}
+for (int i = 0; i < n; i+=1) {
+    for (int j = 0; j < m; j+=1) {
+        |\anchorbox[anchorstyle1]{sumdef}{sum}| += i*j;
+    }
+    |\anchorbox[anchorstyle2]{sumjdef}{sumj}| = |\anchorbox[anchorstyle1]{sumuse}{sum}|;
+}
+|\anchorbox[anchorstyle3]{sumidef}{sumi}| = |\anchorbox[anchorstyle2]{sumjuse}{sumj}|;
+        
+use(|\anchorbox[anchorstyle3]{sumiuse}{sumi}|);
+\end{minted}
+\begin{tikzpicture}[overlay,remember picture]%
+\path (sumdef) edge[arrowedge1] (sumuse);
+\path (sumjdef) edge[arrowedge2] (sumjuse);
+\path (sumidef) edge[arrowedge3] (sumiuse);
+\end{tikzpicture}%
+\end{column}
+\begin{column}{0.6\textwidth}
+\begin{itemize}
+\item Allows referencing the loop's exit value
+    \begin{itemize}
+    \item Otherwise need to pass the loop every time
+    \end{itemize}
+\item Adds spurious dependencies
+\item Makes some (non-innermost) loop transformations more complicated 
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+
+
+
 %MK: Not sure whether I am going to need this; for now it's for testing whether tikzpictruew works
-\begin{frame}[fragile]{Clang/LLVM/Polly Compiler Pipeline}
+\begin{frame}[fragile]{Clang/LLVM/Polly Compiler Pipeline} %MK
 \begin{resizepar}
 \begin{tikzpicture}
 \tikzset{tight/.style={inner sep=0pt,outer sep=0pt,minimum size=0pt}}
@@ -422,8 +657,257 @@ Describe loop canonical form - what exactly this entails, \textit{etc}.
 \end{frame}
 
 
-\begin{frame}{Current LLVM Loop Optimization Passes}
+
+\begin{frame}{Available Infrastructure} %MK
+\begin{columns}
+\begin{column}[t]{0.45\textwidth}
+\begin{itemize}
+\item Analysis passes
+\begin{itemize}
+\item LoopInfo
+\item MemoryDependenceAnalysis
+\item LoopAccessAnalysis
+\item (Predicated)ScalarEvolution
+\item PolyhedralInfo
+\end{itemize}
+\end{itemize}
+\end{column}
+
+\begin{column}[t]{0.45\textwidth}
+\begin{itemize}
+\item Canonicalization passes
+\begin{itemize}
+\item LoopSimplify
+\item LoopRotate
+\item LoopSimplifyCFG
+\item LoopClosedSSA (LCSSA)
+\item IndVarSimplify
+\end{itemize}
+\end{itemize}
+\end{column}
+\end{columns}
+
+\bigskip
+
+\begin{columns}
+\begin{column}[t]{0.45\textwidth}
+\begin{itemize}
+\item Utilities
+\begin{itemize}
+\item IVUsers
+%\item LoopInterchangeLegality
+%\item LoopInterchangeCodeModel
+%\item LoopVectorizationCostModel
+%\item UnrolledInstAnalyzer
+\item LoopVersioning
+\item SCEVExpander
+\end{itemize}
+\end{itemize}
+\end{column}
+
+\begin{column}[t]{0.45\textwidth}
+\end{column}
+\end{columns}
+
 \end{frame}
+
+
+
+\begin{frame}[fragile]{Loop Transformation Passes} %MK
+%\begin{itemize}
+%\item Transformation passes:
+\begin{columns}
+\begin{column}[t]{0.45\textwidth}
+\makeatletter
+\patchcmd{\@listI}{\itemsep3\p@}{\itemsep0em}{}{}
+\makeatother
+\begin{itemize}
+\item LoopSinkPass
+\item LoopDataPrefech
+\item LoopLoadElimination
+\item LoopFuse
+\item LoopDistribution
+\item LoopVectorize
+\item LoopInvariantCodeMotion (LICM)
+\item VersioningLICM
+\item LoopIdiomRecognize
+\item LoopDeletion
+\item Polly
+\end{itemize}
+\end{column}
+
+\begin{column}[t]{0.5\textwidth}
+\makeatletter
+\patchcmd{\@listI}{\itemsep3\p@}{\itemsep0em}{}{}
+\makeatother
+\begin{itemize}
+\item LoopReroll
+\item LoopStrengthReduction
+\item InductiveRangeCheckElimination (IRCE)
+\item LoopUnrollAndJam
+\item Loop(Full/Partial)Unroll
+\item LoopPredication
+\item GuardWidening
+\item LoopUnswitch
+\item LoopInterchange
+\item MachinePipeliner/SwingSchedulerDAG
+\end{itemize}
+\end{column}
+\end{columns}
+
+\bigskip
+
+\begin{itemize}
+\item Modular: Can switch passes on and off independently
+\end{itemize}
+\end{frame}
+
+
+
+\newcommand\looppasspipeline{%
+\begin{scalepar}{0.53}
+\begin{tightcenter}
+\begin{tikzpicture}
+\tikzset{tight/.style={inner sep=0pt,outer sep=0pt,minimum size=0pt}}
+\tikzset{looppass/.style={draw=teal,line width=1.2pt,rounded corners,top color=teal!50,bottom color=white,shading angle=15,drop shadow}}
+\tikzset{nodenoop/.style={draw=teal,line width=1.2pt,rounded corners,top color=gray!50,bottom color=white,shading angle=15,drop shadow}}
+\tikzset{nodedisabled/.style={draw=gray,line width=1.2pt,rounded corners,top color=gray!50,bottom color=white,shading angle=15,drop shadow,text=gray}}
+\tikzset{supernode/.style={subgraph text none,bottom color=teal!30,top color=teal!05,shading angle=15,rounded corners}}
+\tikzset{edge/.style={->,rounded corners}}
+
+\graph[layered layout,edges={edge},level sep=3mm]{
+  codegen[looppass,as={Clang CGOpenMPRuntime}],
+  ir[as={IR},shape=file,draw,fill=white];
+  LoopUnswitch[as={(Simple-)LoopUnswitch},looppass];
+  LoopDeletion[looppass];
+  LoopIdiom[looppass]; 
+  LoopInterchange[nodedisabled]; 
+  LoopFullUnroll[looppass];
+  LoopReroll[nodedisabled];
+  LoopVersioningLICM[nodedisabled];
+  LoopDistribute[nodenoop];
+  LoopVectorize[looppass];
+  LoopLoadElimination[looppass]; 
+  LoopUnrollAndJam[nodedisabled];
+  LoopUnroll[looppass];
+  backend[as={\dots}];
+
+  codegen -> ir -> LoopUnswitch -> LoopIdiom -> LoopDeletion -> LoopInterchange -> LoopFullUnroll -> LoopReroll -> LoopVersioningLICM -> LoopDistribute -> LoopVectorize -> LoopLoadElimination -> LoopUnrollAndJam -> LoopUnroll -> backend;
+};
+\end{tikzpicture}
+\end{tightcenter}
+\end{scalepar}
+}
+
+
+\newcommand\looppassesinthepipeline{%
+\begin{scalepar}{0.45}
+\begin{tightcenter}
+\begin{tikzpicture}
+\tikzset{tight/.style={inner sep=0pt,outer sep=0pt,minimum size=0pt}}
+
+\tikzset{scalarpass/.style={draw=none,line width=1.2pt,rounded corners,top color=gray!50,bottom color=white,shading angle=15,drop shadow}}
+\tikzset{loopcanon/.style={draw=red,line width=1.2pt,rounded corners,top color=darkspringgreen!50,bottom color=white,shading angle=15,drop shadow}}
+\tikzset{loopanalysis/.style={draw=none,line width=1.2pt,rounded corners,top color=teal!50,bottom color=white,shading angle=15,drop shadow}}
+\tikzset{looppass/.style={draw=teal,line width=1.2pt,rounded corners,top color=teal!50,bottom color=white,shading angle=15,drop shadow}}
+
+\tikzset{edge/.style={->,rounded corners}}
+
+% -loops -loop-simplify -lcssa-verification -lcssa -basicaa -aa -scalar-evolution -loop-rotate -licm -loop-unswitch -simplifycfg -domtree -basicaa -aa -loops -lazy-branch-prob -lazy-block-freq -opt-remark-emitter -instcombine -loop-simplify -lcssa-verification -lcssa -scalar-evolution -indvars -loop-idiom -loop-deletion
+\graph[layered layout,edges={edge},level sep=-1mm]{
+  ir[as={\dots},tight];
+  SimplifyCFG1[scalarpass,as={SimplifyCFG}];
+  Reassociate[scalarpass];
+  LoopInfo1[loopanalysis,as={LoopInfo}];
+  LoopSimplify1[loopcanon,as={LoopSimplify}];
+  LCSSA1[loopcanon,as={LCSSA}];
+  LoopRotate[loopcanon];
+  LICM[scalarpass];
+  LoopUnswitch[looppass];
+  SimplifyCFG2[scalarpass,as={SimplifyCFG}];
+  LoopInfo2[loopanalysis,as={LoopInfo}];
+  InstCombine[scalarpass];
+  LoopSimplify2[loopcanon,as={LoopSimplify}];
+  LCSSA2[loopcanon,as={LCSSA}];
+  IndVarSimplify[loopcanon];
+  LoopIdiom[looppass];
+  LoopDeletion[looppass];
+  dots[as={\dots}];
+
+  ir -> SimplifyCFG1 -> Reassociate ->  LoopInfo1 -> LoopSimplify1 -> LCSSA1 -> LoopRotate -> LICM -> LoopUnswitch -> SimplifyCFG2 -> LoopInfo2 -> InstCombine -> LoopSimplify2 -> LCSSA2 ->  IndVarSimplify -> LoopIdiom -> LoopDeletion -> dots;
+};
+\end{tikzpicture}
+\end{tightcenter}
+\end{scalepar}
+}
+
+
+
+\begin{frame}[fragile]{Static Loop Pipeline} %MK
+\begin{columns}
+\begin{column}{0.15\textwidth}
+\looppasspipeline
+\end{column}
+\begin{column}{0.85\textwidth}
+\begin{itemize}
+\item Fixed transformation order
+    \begin{itemize}
+    \item OpenMP outlining happens first
+        \begin{itemize}
+        \item Difficult to optimize afterwards
+        \end{itemize}
+    \item May conflict with source directives:
+    \begin{minted}{c}
+    #pragma distribute
+    #pragma interchange
+    for (int i = 1; i < n; i+=1)
+      for (int j = 0; j < m; j+=1) {
+        A[i][j] = i + j;
+        B[i][j] = A[i-1][j];
+      }
+    \end{minted}
+    \item OpenMP proposal: \url{https://arxiv.org/abs/1805.03374}
+    \end{itemize}
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+
+\begin{frame}{Non-Loop Passes Between Loop Passes} %MK
+\begin{columns}
+\begin{column}{0.1\textwidth}
+\looppassesinthepipeline
+\end{column}
+\begin{column}{0.9\textwidth}
+\begin{itemize}
+\item Non-loop passes may destroy canonical loop structure
+\begin{itemize}
+\item SimplifyCFG removes empty loop (pre-)headers
+    \begin{itemize}
+    \item Keeps a list of loop headers
+    \item LoopSimplifyCFG only merges blocks within loop
+    \item Fixed in r343816
+    \end{itemize}
+\item JumpThreading skips exiting block
+    \begin{itemize}
+    \item Has an integrated loop header detection
+    \item Makes ScalarEvolution not recognize the loop
+    \item Fixed in r312664(?)
+    \end{itemize}
+\item Bit-operations created by InstCombine must be understood by ScalarEvolution
+\item LCSSA removed
+\end{itemize}
+
+\item Analysis invalidation / Extra work in non-loop passes
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+
 
 \begin{frame}[label={sec:auxdatastruct}]{Auxiliary Data Structures}
     \begin{itemize}
