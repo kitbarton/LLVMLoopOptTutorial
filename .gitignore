@@ -245,3 +245,6 @@ TSWLatexianTemp*
 *~
 \#*
 .\#*
+
+# MacOS
+.DS_Store
