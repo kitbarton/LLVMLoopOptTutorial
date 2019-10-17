@@ -82,7 +82,7 @@
 
 
 \begin{frame}[label=loopnormalform,fragile]{Canonical Loop Form} %MK
-\framesubtitle{Feel free to re-use/eliminate this slide; maybe it's useful}
+\framesubtitle{MK: Feel free to re-use/eliminate this slide; maybe it's useful}
 \begin{columns}
 \begin{column}{0.6\textwidth}
 \begin{itemize}
@@ -185,106 +185,60 @@ Describe loop canonical form - what exactly this entails, \textit{etc}.
 \begin{frame}[fragile,label={sec:lcssa}]{Loop-Closed SSA Form}
 %    What exactly is this? When is it useful? What are the implications afterwards?
 
-\begin{scalepar}{0.7}
-\begin{minted}{llvm}
-loop:
-  %indvar = phi i64 [%indvar.next, %loop], [0, %preheader]
-  %sum = phi i64 [%sum.next, %loop], [0, %preheader]
+\begin{tikzpicture}
+\tikzset{indent/.style={xshift=5mm}}]
+\tikzset{lcssa/.style={subgraph text none,bottom color=teal!30,top color=teal!15,shading angle=15,rounded corners,draw=teal,very thick}}
+\tikzset{ssa/.style={subgraph text none,bottom color=red!30,top color=red!15,shading angle=15,rounded corners,draw=red,very thick}}
+
+\matrix[matrix of nodes,nodes={anchor=west,inner ysep=0.4ex}] {
+                      \llvminline{loop:}                                                       \\
+|(indvar) [indent]|     \llvminline{%indvar = phi i64 [%indvar.next, %loop], [0, %preheader]}  \\[1.5ex]
+|(sum) [indent]|        \llvminline{%sum = phi i64 [%sum.next, %loop], [0, %preheader]}        \\
+|(sumnext) [indent]|    \llvminline{%sum.next = add i64 %sum, %indvar}                         \\[1.5ex]
+|(indvarnext) [indent]| \llvminline{%indvar.next = add i64 %indvar, 1}                         \\
+|(cond) [indent]|       \llvminline{%cond = icmp ne i64 %indvar.next, 64}                      \\
+|(br) [indent]|         \llvminline{br i1 %cond, label %loop, label %exit}                     \\[1.5ex]
  
-  %sum.next = add i64 %sum, %indvar
-  
-  %indvar.next = add i64 %indvar, 1
-  %cond = icmp ne i64 %indvar.next, 64
-  br i1 %cond, label %loop, label %exit
-  
-exit:
-  %sum.result = phi i64 [%sum.next, %loop]
-\end{minted}
-\end{scalepar}
+                     \llvminline{exit:}        \\
+|(sumresult) [indent,visible on=<2->]| \llvminline{%sum.result = phi i64 [%sum.next, %loop]}        \\[3ex]
+\node[anchor=west,inner ysep=0.4ex,indent](dots1){\dots};
+\node[right=0pt of dots1](use){\texttt{\alt<1>{\%sum.next}{\%sum.result}}}; 
+\node[right=0pt of use]{\dots};  \\
+};
 
+\begin{pgfonlayer}{background}
+\node[fit={(sum) (sumnext)},ssa] {};
+\node<1>[fit={(use)},ssa] {};
+\node<2->[fit={(sumresult)},lcssa] {};
+\node<2->[fit={(use)},lcssa] {};
+\end{pgfonlayer}
+\end{tikzpicture}%
+\begin{locate}<only@3->[anchor=center]{page cs:x=0.5,y=0.5}
+\begin{minipage}{0.75\textwidth}
+\begin{block}{}
+\begin{itemize}
+\item Added by LCSSA pass
+    \begin{itemize}
+    \item Automatically added by LoopPassManager
+    \end{itemize}
+\item Must be preserved by loop passes
+    \begin{itemize}
+    \item Helper: \cppinline{llvm::formLCSSA(Loop &L, ...)}
+    \end{itemize}
+\item Removed again by InstCombine
+\end{itemize}
+\end{block}
 \bigskip
-
+\begin{block}{Advantages}
 \begin{itemize}
-\item Eliminated by InstCombine
-\item (legacy) LoopPassManager always ensures LCSSA
-    \begin{itemize}
-    \item Also means that passes have to preserve LCSSA
-    \end{itemize}
-\item LoopVectorizePass (FunctionPass) forms and preserves LCSSA itself
+\item Loop transformations change only the LCSSA node
+\item No need to pass scope to ScalarEvolution 
 \end{itemize}
-
-Advantages:
-\begin{itemize}
-\item In non-LCSSA form, need to specify the context in each loop
-\begin{minted}{cpp}
-const SCEV *ScalarEvolution::getSCEVAtScope(Value *V, const Loop *L)
-\end{minted}
-
-\item Loop transformations are loop-local: \cppinline{replaceAllUsesWith} changes only the exit block
-\end{itemize}
-
+\end{block}
+\end{minipage}
+\end{locate}
 \end{frame}
 
-
-%MK: Will probably keep just one LCSSA slide
-\begin{frame}[fragile,label=lcssa,shrink=15]{Loop-Closed SSA Form} %MK
-\framesubtitle{Disadvantages}
-
-\tikzset{anchorstyle1/.style={draw=teal,line width=0.6pt,rounded corners=2pt,top color=teal!50,bottom color=white,shading angle=15}}
-\tikzset{arrowedge1/.style={draw=teal,line width=1.2pt,rounded corners,-To[]}}
-
-\tikzset{anchorstyle2/.style={draw=blue,line width=0.6pt,rounded corners=2pt,top color=blue!50,bottom color=white,shading angle=15}}
-\tikzset{arrowedge2/.style={draw=blue,line width=1.2pt,rounded corners,-To[]}}
-
-\tikzset{anchorstyle3/.style={draw=darkmagenta,line width=0.6pt,rounded corners=2pt,top color=darkmagenta!50,bottom color=white,shading angle=15}}
-\tikzset{arrowedge3/.style={draw=darkmagenta,line width=1.2pt,rounded corners,-To[]}}
-
-\begin{columns}
-\begin{column}{0.4\textwidth}
-\begin{minted}[escapeinside=||]{c}
-for (int i = 0; i < n; i+=1) 
-    for (int j = 0; j < m; j+=1)
-        |\anchorbox[anchorstyle1]{sumdef}{sum}| += i*j;
-        
-use(|\anchorbox[anchorstyle1]{sumuse}{sum}|);
-\end{minted}
-\begin{tikzpicture}[overlay,remember picture]%
-\path (sumdef) edge[arrowedge1] (sumuse);
-\end{tikzpicture}%
-
-\begin{tightcenter}
-\arrowdown{LCSSA}
-\end{tightcenter}
-
-\begin{minted}[escapeinside=||]{c}
-for (int i = 0; i < n; i+=1) {
-    for (int j = 0; j < m; j+=1) {
-        |\anchorbox[anchorstyle1]{sumdef}{sum}| += i*j;
-    }
-    |\anchorbox[anchorstyle2]{sumjdef}{sumj}| = |\anchorbox[anchorstyle1]{sumuse}{sum}|;
-}
-|\anchorbox[anchorstyle3]{sumidef}{sumi}| = |\anchorbox[anchorstyle2]{sumjuse}{sumj}|;
-        
-use(|\anchorbox[anchorstyle3]{sumiuse}{sumi}|);
-\end{minted}
-\begin{tikzpicture}[overlay,remember picture]%
-\path (sumdef) edge[arrowedge1] (sumuse);
-\path (sumjdef) edge[arrowedge2] (sumjuse);
-\path (sumidef) edge[arrowedge3] (sumiuse);
-\end{tikzpicture}%
-\end{column}
-\begin{column}{0.6\textwidth}
-\begin{itemize}
-\item Allows referencing the loop's exit value
-    \begin{itemize}
-    \item Otherwise need to pass the loop every time
-    \end{itemize}
-\item Adds spurious dependencies
-\item Makes some (non-innermost) loop transformations more complicated 
-\end{itemize}
-\end{column}
-\end{columns}
-\end{frame}
 
 
 
@@ -350,62 +304,6 @@ use(|\anchorbox[anchorstyle3]{sumiuse}{sumi}|);
 \end{frame}
 
 
-
-\begin{frame}{Available Infrastructure} %MK
-\begin{columns}
-\begin{column}[t]{0.45\textwidth}
-\begin{itemize}
-\item Analysis passes
-\begin{itemize}
-\item LoopInfo
-\item MemoryDependenceAnalysis
-\item LoopAccessAnalysis
-\item (Predicated)ScalarEvolution
-\item PolyhedralInfo
-\end{itemize}
-\end{itemize}
-\end{column}
-
-\begin{column}[t]{0.45\textwidth}
-\begin{itemize}
-\item Canonicalization passes
-\begin{itemize}
-\item LoopSimplify
-\item LoopRotate
-\item LoopSimplifyCFG
-\item LoopClosedSSA (LCSSA)
-\item IndVarSimplify
-\end{itemize}
-\end{itemize}
-\end{column}
-\end{columns}
-
-\bigskip
-
-\begin{columns}
-\begin{column}[t]{0.45\textwidth}
-\begin{itemize}
-\item Utilities
-\begin{itemize}
-\item IVUsers
-%\item LoopInterchangeLegality
-%\item LoopInterchangeCodeModel
-%\item LoopVectorizationCostModel
-%\item UnrolledInstAnalyzer
-\item LoopVersioning
-\item SCEVExpander
-\end{itemize}
-\end{itemize}
-\end{column}
-
-\begin{column}[t]{0.45\textwidth}
-\end{column}
-\end{columns}
-
-\end{frame}
-
-
-
 \begin{frame}[fragile]{Loop Transformation Passes} %MK
 %\begin{itemize}
 %\item Transformation passes:
@@ -447,15 +345,75 @@ use(|\anchorbox[anchorstyle3]{sumiuse}{sumi}|);
 \end{itemize}
 \end{column}
 \end{columns}
-
-\bigskip
-
-\begin{itemize}
-\item Modular: Can switch passes on and off independently
-\end{itemize}
 \end{frame}
 
 
+\begin{frame}{Available Infrastructure} %MK
+\begin{columns}
+\begin{column}[t]{0.45\textwidth}
+\begin{itemize}
+\item Analysis passes
+\begin{itemize}
+\item LoopInfo
+\item MemoryDependenceAnalysis
+\item LoopAccessAnalysis
+\item (Predicated)ScalarEvolution
+\item PolyhedralInfo
+\end{itemize}
+\end{itemize}
+\end{column}
+
+
+\begin{column}[t]{0.45\textwidth}
+\begin{itemize}
+\item Canonicalization passes
+\begin{itemize}
+\item LoopSimplify
+\item LoopRotate
+\item LoopSimplifyCFG
+\item LoopClosedSSA (LCSSA)
+\item IndVarSimplify
+\end{itemize}
+\end{itemize}
+\end{column}
+\end{columns}
+
+\bigskip
+
+\begin{columns}
+\begin{column}[t]{0.45\textwidth}
+\begin{itemize}
+\item Utilities
+\begin{itemize}
+\item IVUsers
+%\item LoopInterchangeLegality
+%\item LoopInterchangeCodeModel
+%\item LoopVectorizationCostModel
+%\item UnrolledInstAnalyzer
+\item LoopVersioning
+\item SCEVExpander
+\end{itemize}
+\end{itemize}
+\end{column}
+
+
+
+\begin{column}[t]{0.45\textwidth}
+\begin{itemize}
+\item Verification
+\begin{itemize}
+\item LCSSAVerificationPass
+\end{itemize}
+\end{itemize}
+
+\end{column}
+\end{columns}
+
+\end{frame}
+
+
+
+\begin{comment}
 
 \newcommand\looppasspipeline{%
 \begin{scalepar}{0.53}
@@ -491,6 +449,7 @@ use(|\anchorbox[anchorstyle3]{sumiuse}{sumi}|);
 \end{tightcenter}
 \end{scalepar}
 }
+
 
 
 \newcommand\looppassesinthepipeline{%
@@ -598,6 +557,7 @@ use(|\anchorbox[anchorstyle3]{sumiuse}{sumi}|);
 \end{column}
 \end{columns}
 \end{frame}
+\end{comment}
 
 
 

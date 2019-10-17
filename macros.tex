@@ -41,10 +41,14 @@
 \usepackage{tikz}
 \usetikzlibrary{decorations.text}
 \usetikzlibrary{shapes.arrows}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{bending}
 \usetikzlibrary{shadows}
 \usetikzlibrary{fit}
 \usetikzlibrary{graphs}
 \usetikzlibrary{graphdrawing}
+\usetikzlibrary{matrix}
+\usetikzlibrary{positioning}
 \usegdlibrary{layered}
 
 \pgfdeclarelayer{backbackbackground}
@@ -53,10 +57,14 @@
 \pgfdeclarelayer{foreground}
 \pgfdeclarelayer{foreforeground}
 \pgfsetlayers{backbackbackground,backbackground,background,main,foreground,foreforeground}
+\tikzset{>={Stealth[round,flex,length=5pt 4.5 0.8]}} % Standard latex arrow tips are way too small
+\tikzset{tight/.style={minimum width=0pt,minimum height=0pt,inner sep=0pt,outer sep=0pt}}
+\usepackage{aobs-tikz}
 
 \usepackage{minted}
 \newmintinline{c}{style=bw}
 \newmintinline{cpp}{style=bw}
+\newmintinline{llvm}{}
 \newmintinline{text}{style=bw}
 \usemintedstyle{borland}
 
@@ -77,6 +85,9 @@
 \useinnertheme{}
 \useoutertheme{}
 
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\setbeamercolor{block title}{bg=teal,fg=white}
+\setbeamercolor{block body}{bg=teal!10}
 
 % Delete this, if you do not want the table of contents to pop up at
 % the beginning of each subsection:
@@ -291,6 +302,62 @@
 \newcommand{\anchorbox}[3][]{%
    \tikz[remember picture,baseline=(#2.base)] \node[inner sep=0,outer sep=0,minimum size=0pt,#1](#2) {\minibox{#3}};%
 }
+
+% Positioniert etwas an eine bestimmte Stelle 
+% \begin{locate}[options]{position}
+\newsavebox{\my@locate@Lrbox}
+\newenvironment*{locate}[2][]{% 
+        \tikzset{my@locate@Options/.style={#1}}%
+        \begin{tikzpicture}[remember picture,overlay]%
+        \coordinate (my@locate@Position) at (#2);
+        \end{tikzpicture}%
+        \begin{lrbox}{\my@locate@Lrbox}%
+}{%
+        \end{lrbox}%
+        \begin{tikzpicture}[remember picture,overlay]%
+        \node[my@locate@Options,inner sep=0,outer sep=0] at (my@locate@Position) {\usebox{\my@locate@Lrbox}};%
+        \end{tikzpicture}%
+}
+
+
+\renewenvironment<>{locate}[2][]{%
+\begin{actionenv}#3\begin{originallocate}[#1]{#2}%
+}{%
+\end{originallocate}\end{actionenv}%
+}
+
+
+
+
+
+% Tikz coordinate system: Relativ zur aktuellen Seite
+% "page cs:x=0,y=0" == Oben links
+% "page cs:x=1,y=1" == Unten rechts
+\define@key{pagekeys}{x}{\def\mypagex{#1}}
+\define@key{pagekeys}{y}{\def\mypagey{#1}}
+\tikzdeclarecoordinatesystem{page}{%
+\setkeys{pagekeys}{#1}%
+\pgfpointlineattime{%
+        \mypagex%
+}{%
+        \pgfpointlineattime{%
+                \mypagey%
+        }{%
+                \pgfpointanchor{current page}{north west}%
+        }{%
+                \pgfpointanchor{current page}{south west}%
+        }%
+}{%
+        \pgfpointlineattime{%
+                \mypagey%
+        }{%
+                \pgfpointanchor{current page}{north east}%
+        }{%
+                \pgfpointanchor{current page}{south east}%
+        }%
+}%
+}
+
 \makeatother
 
 \newcommand*\arrowdown[1]{%
