@@ -1,0 +1,129 @@
+%%
+%% This is file `tikzlibraryoverlay-beamer-styles.code.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% aobs-tikz.dtx  (with options: `tikzlibrary')
+%% * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+%% aobs-tikz - TikZ auxiliary styles for Beamer overlays
+%% 
+%% E-mail: claudio dot fiandrino at gmail dot com
+%% 
+%% Released under the LaTeX Project Public License v1.3c or later
+%% See http://www.latex-project.org/lppl.txt
+%% * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+%% 
+%% The package defines auxiliary TikZ styles useful for
+%% overlaying pictures' elements in Beamer.
+%% 
+%% The TikZ styles are grouped in a library, overlay-beamer-styles
+%% which is automatically called by the aobs-tikz package. Users
+%% can either load only aobs-tikz or the library; the latter method
+%% necessitates TikZ manual load.
+\tikzset{
+    invisible/.style={opacity=0,text opacity=0},
+    visible on/.style={alt=#1{}{invisible}},
+    alt/.code args={<#1>#2#3}{%
+      \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}}
+    },
+}
+
+\tikzset{
+  background text/.style={text=#1},
+  background text/.default={black},
+  background default text/.style={
+    background text/.default={#1},
+  },
+  text on/.style={alt=#1{}{background text}},
+}
+
+\tikzset{
+  background fill/.style={fill=#1},
+  background fill/.default={white},
+  background default fill/.style={
+    background fill/.default={#1},
+  },
+  fill on/.style={alt=#1{}{background fill}},
+}
+
+\tikzset{
+  background draw/.style={draw=#1},
+  background draw/.default={white},
+  background default draw/.style={
+    background draw/.default={#1},
+  },
+  draw on/.style={alt=#1{}{background draw}}
+}
+
+\tikzset{
+  background filldraw/.style args={#1 filled by #2}{draw=#1, fill=#2},
+  background filldraw/.default=white filled by white,
+  background default filldraw/.style={
+    background filldraw/.default={#1},
+  },
+  filldraw on/.style={alt=#1{}{background filldraw}},
+}
+
+\tikzset{
+  background aspect/.style={#1},
+  background aspect/.default={white},
+  background default aspect/.style={
+    background aspect/.default={#1},
+  },
+  aspect on/.style={alt=#1{}{background aspect}},
+}
+
+\tikzset{
+  background shade/.style={#1},
+  background shade/.default={top color=white, bottom color=white},
+  background default shade/.style={
+    background shade/.default={#1},
+  },
+  shade on/.style={alt=#1{}{background shade}},
+}
+
+\tikzset{
+  background shadedraw/.style 2 args={draw=#1, #2},
+  background shadedraw/.default={white}{top color=white, bottom color=white},
+  background default shadedraw/.style={
+    background shadedraw/.default={#1},
+  },
+  shadedraw on/.style={alt=#1{}{background shadedraw}},
+}
+\tikzoption{double disabled}[0pt]{%
+  \pgfmathsetlength{\pgf@x}{#1}%
+  \edef\tikz@double@setup{%
+    \pgf@x=\the\pgf@x%
+    \pgflinewidth=\pgf@x%
+    \noexpand\pgfsetlinewidth{\pgflinewidth}%
+    \noexpand\pgfsetinnerlinewidth{\the\pgf@x}%
+  }%
+\tikzset{double}}
+%% 
+%% Copyright (C) 2014 by Claudio Fiandrino <claudio.fiandrino@gmail.com>
+%% 
+%% This file may be distributed and/or modified under the conditions
+%% of the LaTeX Project Public License, either version 1.3 of this
+%% license or (at your option) any later version.
+%% The latest version of this license is in:
+%% 
+%%    http://www.latex-project.org/lppl.txt
+%% 
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%% 
+%% This work is "maintained" (as per LPPL maintenance status) by
+%% Claudio Fiandrino.
+%% 
+%% This work consists of the files  aobs-tikz.dtx
+%% and the derived files  aobs-tikz.ins
+%%                                  aobs-tikz.sty
+%%                                  tikzlibrarybeamer-overlay-styles.code.tex
+%%                                  aobs-tikz.pdf
+%%                                  example.tex
+%%                                  example.pdf
+%%                                  README.txt
+%% 
+%%
+%% End of file `tikzlibraryoverlay-beamer-styles.code.tex'.
