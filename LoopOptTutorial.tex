@@ -163,28 +163,32 @@
     \item Backedge taken count
     \item Iteration count
     \item Loop guard
-    \item irreducible loops (not covered)
-    \item Others?
+    \item Irreducible loops (not covered)
     \end{itemize}
   \end{block}
 \end{frame}
 
 \begin{frame}[label={sec:rotated}]{Rotated Loops}
   \begin{itemize}
-    \item Describe what rotated loops are
+  \item Loop has a latch and the latch is the exiting block
+  \end{itemize}
+  \begin{itemize}
     \item Give some examples of rotated loops
     \item Limitations of loop rotation
   \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:canonical}]{Canonical Form}
-Describe loop canonical form - what exactly this entails, \textit{etc}.
+\begin{frame}[label={sec:SimplifyForm}]{Simplify Form}
+  \begin{itemize}
+    \item Loop has a preheader
+    \item Loop has a latch
+    \item Loop has dedicated exits (no exit block for the loop has a predecessor
+      that is outside the loop)
+  \end{itemize}
 \end{frame}
 
 
 \begin{frame}[fragile,label={sec:lcssa}]{Loop-Closed SSA Form}
-%    What exactly is this? When is it useful? What are the implications afterwards?
-
 \begin{tikzpicture}
 \tikzset{indent/.style={xshift=5mm}}]
 \tikzset{lcssa/.style={subgraph text none,bottom color=teal!30,top color=teal!15,shading angle=15,rounded corners,draw=teal,very thick}}
@@ -571,13 +575,13 @@ Describe loop canonical form - what exactly this entails, \textit{etc}.
 
 
 
-\begin{frame}[label={sec:auxdatastruct}]{Auxiliary Data Structures}
-    \begin{itemize}
-    \item Dominator/PostDominator trees
-    \item Data dependence graph (DDG)
-    \item Others??
-    \end{itemize}
-\end{frame}
+%% \begin{frame}[label={sec:auxdatastruct}]{Auxiliary Data Structures}
+%%     \begin{itemize}
+%%     \item Dominator/PostDominator trees
+%%     \item Data dependence graph (DDG)
+%%     \item Others??
+%%     \end{itemize}
+%% \end{frame}
 
 \section{Considerations when writing a loop pass}
 \begin{frame}[label={sec:looppass}]{Loop Pass vs Function Pass}
@@ -598,38 +602,66 @@ Describe loop canonical form - what exactly this entails, \textit{etc}.
 
 
 \section{Simple Loop Optimization Pass}
-\begin{frame}[label=step1]{Basic Loop Optimization Pass using New Pass
-    Manager}{\textbf{Kit to do}}
-\end{frame}
+\begin{frame}[label=step1]{\textbf{Demo}: Basic Loop Optimization Pass using New Pass
+    Manager}
 
-\begin{frame}[label=step2]{Checking For Valid Candidates}{\textbf{Kit to do}}
-\end{frame}
-
-\begin{frame}[label=step3]{Splitting a loop using cloning}{\textbf{Ettore to do}}
-\end{frame}
-
-\begin{frame}[label=step4]{Updating data structures - dominator tree and
-    SCEV}{\textbf{Kit to do}}
-\end{frame}
-
-\begin{frame}[label=step5]{Reporting Success and failure}{\textbf{Ettore to do}}
-\end{frame}
-
-\section{Other Useful Tools}
-\begin{frame}[label=reports]{Reporting success and failure}
   \begin{itemize}
-    \item STATISTICS
-    \item Optimization Remark Emitter
+  \item Step 1: Basic loop optimization template
+  \item Step 2: Filter candidates
+  \item Step 3a: Add code to split loop
+  \item Step 3b: Recompute dominator tree
+  \item Step 4: Use DomTreeUpdater to update dominator tree
+  \item Step 5: Use STATISTICS and OpmizationRemarkEmitter to report outcome 
   \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:datastructs}]{Updating Data Structures}
-    \begin{itemize}
-      \item DominatorTreeUpdater
-      \item SCEV
-      \item Other??
-    \end{itemize}
+\begin{frame}[label=preserved]{Preserved Analysis in Loop Passes}
+  %%  \verbatim
+ %% PreservedAnalyses llvm::getLoopPassPreservedAnalyses() {
+ %%   PreservedAnalyses PA;
+ %%   PA.preserve<DominatorTreeAnalysis>();
+ %%   PA.preserve<LoopAnalysis>();
+ %%   PA.preserve<LoopAnalysisManagerFunctionProxy>();
+ %%   PA.preserve<ScalarEvolutionAnalysis>();
+ %%   // FIXME: What we really want to do here is preserve an AA category, but that
+ %%   // concept doesn't exist yet.
+ %%   PA.preserve<AAManager>();
+ %%   PA.preserve<BasicAA>();
+ %%   PA.preserve<GlobalsAA>();
+ %%   PA.preserve<SCEVAA>();
+ %%   return PA;
+ %% }
+ %% \end{verbatim}
 \end{frame}
+
+%% \begin{frame}[label=step2]{Checking For Valid Candidates}{\textbf{Kit to do}}
+%% \end{frame}
+
+%% \begin{frame}[label=step3]{Splitting a loop using cloning}{\textbf{Ettore to do}}
+%% \end{frame}
+
+%% \begin{frame}[label=step4]{Updating data structures - dominator tree and
+%%     SCEV}{\textbf{Kit to do}}
+%% \end{frame}
+
+%% \begin{frame}[label=step5]{Reporting Success and failure}{\textbf{Ettore to do}}
+%% \end{frame}
+
+%% \section{Other Useful Tools}
+%% \begin{frame}[label=reports]{Reporting success and failure}
+%%   \begin{itemize}
+%%     \item STATISTICS
+%%     \item Optimization Remark Emitter
+%%   \end{itemize}
+%% \end{frame}
+
+%% \begin{frame}[label={sec:datastructs}]{Updating Data Structures}
+%%     \begin{itemize}
+%%       \item DominatorTreeUpdater
+%%       \item SCEV
+%%       \item Other??
+%%     \end{itemize}
+%% \end{frame}
 
 \section{Dependence Graphs}
 \begin{frame}[label={sec:DepGraphs}]{Dependence Graphs}
