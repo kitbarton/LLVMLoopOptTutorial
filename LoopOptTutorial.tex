@@ -169,7 +169,7 @@
 \end{frame}
 
 \begin{frame}[label={sec:rotated}]{Rotated Loops}
-  \includegraphics[width=\textwidth]{figures/LoopRotation.png}
+  \includegraphics[width=\textwidth]{figures/LoopRotationSimplified.pdf}
 
   %% \begin{itemize}
   %% \item Loop has a latch and the latch is the exiting block
@@ -181,7 +181,7 @@
 \end{frame}
 
 \begin{frame}[label={sec:rotated}]{Rotated Loops - Guarded Loops}
-  \includegraphics[width=\textwidth]{figures/LoopRotationGuarded.png}
+  \includegraphics[width=\textwidth]{figures/LoopRotationGuardedSimplified.pdf}
 
   %% \begin{itemize}
   %% \item Loop has a latch and the latch is the exiting block
@@ -630,22 +630,29 @@
 \end{frame}
 
 \begin{frame}[fragile]{Preserved Analysis in Loop Passes}
-  \begin{minted}{c}
-    PreservedAnalyses llvm::getLoopPassPreservedAnalyses() {
-      PreservedAnalyses PA;
-      PA.preserve<DominatorTreeAnalysis>();
-      PA.preserve<LoopAnalysis>();
-      PA.preserve<LoopAnalysisManagerFunctionProxy>();
-      PA.preserve<ScalarEvolutionAnalysis>();r
-      // FIXME: What we really want to do here is preserve an AA category,
-      // but that concept doesn't exist yet.
-      PA.preserve<AAManager>();
-      PA.preserve<BasicAA>();
-      PA.preserve<GlobalsAA>();
-      PA.preserve<SCEVAA>();
-      return PA;
-    }
-  \end{minted}
+  \begin{columns}
+    \begin{column}{0.45\textwidth}
+      \begin{minted}[fontsize=\tiny,linenos]{c}
+PreservedAnalyses llvm::getLoopPassPreservedAnalyses() {
+  PreservedAnalyses PA;
+  PA.preserve<DominatorTreeAnalysis>();
+  PA.preserve<LoopAnalysis>();
+  PA.preserve<LoopAnalysisManagerFunctionProxy>();
+  PA.preserve<ScalarEvolutionAnalysis>();r
+  // FIXME: What we really want to do here is preserve
+  // an AA category, but that concept doesn't exist yet.
+  PA.preserve<AAManager>();
+  PA.preserve<BasicAA>();
+  PA.preserve<GlobalsAA>();
+  PA.preserve<SCEVAA>();
+  return PA;
+}
+      \end{minted}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      Need to say something here
+    \end{column}
+  \end{columns}
 \end{frame}
 
 %% \begin{frame}[label=step2]{Checking For Valid Candidates}{\textbf{Kit to do}}
