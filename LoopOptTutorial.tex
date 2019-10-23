@@ -81,79 +81,70 @@
   \includegraphics[width=\textwidth]{figures/LoopRepresentation.pdf}
 \end{frame}
 
-%% \begin{frame}[label=loopnormalform,fragile]{Canonical Loop Form} %MK
-%% %%\framesubtitle{MK: Feel free to re-use/eliminate this slide; maybe it's useful}
-%% \begin{columns}
-%% \begin{column}{0.6\textwidth}
-%% \begin{itemize}
-%% \item Loop identified by header
-%% \item Preheader
-%% \item Single backedge/latch
-%% \item Exits only from loop
-%% \item Loop-rotated form\\(at least one iteration / loop guard)
-%%     \begin{itemize}
-%%     \item Can hoist invariant loads
-%%     \end{itemize}
-%% \item Loop-Closed SSA
 
-%% %\item Responsible passes
-%% %\begin{itemize}
-%% %\item LoopRotate
-%% %\item LoopSimplify
-%% %\item IndVarSimplify
-%% %\item LCSSA
-%% %\end{itemize}
-%% \end{itemize}
+\begin{comment}
+\begin{frame}[label=loopnormalform,fragile]{Canonical Loop Form} %MK
+%%\framesubtitle{MK: Feel free to re-use/eliminate this slide; maybe it's useful}
+\begin{columns}
+\begin{column}{0.6\textwidth}
+\begin{itemize}
+\item Loop identified by header
+\item Preheader
+\item Single backedge/latch
+\item Exits only from loop
+\item Loop-rotated form\\(at least one iteration / loop guard)
+    \begin{itemize}
+    \item Can hoist invariant loads
+    \end{itemize}
+\item Loop-Closed SSA
+
+%\item Responsible passes
+%\begin{itemize}
+%\item LoopRotate
+%\item LoopSimplify
+%\item IndVarSimplify
+%\item LCSSA
+%\end{itemize}
+\end{itemize}
 
 
-%% \end{column}
-%% \begin{column}{0.4\textwidth}
-%% \begin{tightcenter}
-%% \begin{scaleenv}{0.7}
-%% \begin{tikzpicture}
-%% \tikzset{tight/.style={inner sep=0pt,outer sep=0pt,minimum size=0pt}}
-%% \tikzset{invisible/.style={draw=none,fill=none,text=white}}
+\end{column}
+\begin{column}{0.4\textwidth}
+\begin{tightcenter}
+\begin{scaleenv}{0.7}
+\begin{tikzpicture}
+\tikzset{tight/.style={inner sep=0pt,outer sep=0pt,minimum size=0pt}}
+\tikzset{invisible/.style={draw=none,fill=none,text=white}}
 
-%% \tikzset{node/.style={line width=1.2pt,rounded corners,bottom color=white,shading angle=15,drop shadow}}
-%% \tikzset{bb/.style={node,draw=teal,top color=teal!50}}
+\tikzset{node/.style={line width=1.2pt,rounded corners,bottom color=white,shading angle=15,drop shadow}}
+\tikzset{bb/.style={node,draw=teal,top color=teal!50}}
 
-%% \graph [layered layout,edges={->},sibling distance=2cm,level distance=12mm]{
-%%     enter1[as={}];
-%%     enter2[as={}];
-%%     guard[bb,as={Guard}];
-%%     preheader[bb,as={Preheader}];
-%%     header[bb,as={Header}];
-%%     exiting[bb,as={Exiting}];
-%%     exit[bb,as={Exit}];
-%%     merge[bb,as={\phantom{MMM}}];
-%%     latch[bb,as={Latch}];
-%%     afterexit[as={}];
-    
-%%     {enter1,enter2}->guard;
-%%     guard->preheader;
-%%     guard->merge;
-%%     preheader->header;  
-%%     header->exiting;
-%%     exiting->exit;
-%% %    exiting->latch;
-%%     latch->[thick,out=90,in=180]header;
-%%     exit->merge;
-%%     merge->afterexit;
-    
-%%     {[edge={draw=none}]
-%%       header->latch,
-%%       latch->exiting
-%%     };
-%% };
+\graph [layered layout,edges={->},sibling distance=2cm,level distance=12mm]{
+    enter1[as={}];
+    enter2[as={}];
+    guard[bb,as={Guard}];
+    preheader[bb,as={Preheader}];
+    header[bb,as={Header}];
+    exiting[bb,as={Exiting}];
+    exit[bb,as={Exit}];
+    merge[bb,as={\phantom{MMM}}];
+    latch[bb,as={Latch}];
+    afterexit[as={}];
+    {[edge={draw=none}]
+      header->latch,
+      latch->exiting
+    };
+};
 
-%% \path (latch) edge[draw=none,decorate,decoration={text along path,text={Backedge}},out=90,in=180] (header);
-%% \path (exiting) edge[->,in=270,out=180] (latch);
-%% \end{tikzpicture}
-%% \end{scaleenv}
-%% \end{tightcenter}
-%% \end{column}
-%% \end{columns}
-%% \end{frame}
+\path (latch) edge[draw=none,decorate,decoration={text along path,text={Backedge}},out=90,in=180] (header);
+\path (exiting) edge[->,in=270,out=180] (latch);
+\end{tikzpicture}
+\end{scaleenv}
+\end{tightcenter}
+\end{column}
+\end{columns}
+\end{frame}
+\end{comment}
 
 
 \begin{frame}[label={sec:orgac3eb21}]{Other Terminology}
@@ -276,7 +267,7 @@ void example(long N) {
 \end{tikzpicture}%
 \begin{locate}<only@3->[anchor=center]{page cs:x=0.5,y=0.5}
 \begin{minipage}{0.75\textwidth}
-\begin{block}{}
+\begin{block}{Workflow}
 \begin{itemize}
 \item Added by LCSSA pass
     \begin{itemize}
@@ -290,22 +281,89 @@ void example(long N) {
 \end{itemize}
 \end{block}
 \bigskip
-\begin{block}{Advantages}
+\begin{exampleblock}{Advantages}
 \begin{itemize}
 \item Loop transformations change only the LCSSA node
 \item No need to pass scope to ScalarEvolution 
 \end{itemize}
-\end{block}
+\end{exampleblock}
 \end{minipage}
 \end{locate}
 \end{frame}
 
 
+\begin{frame}{Available Infrastructure} %MK
+\begin{columns}
+\begin{column}[t]{0.45\textwidth}
+\begin{itemize}
+\item Analysis passes
+\begin{itemize}
+\item \textbf<2->{LoopInfo (LoopAnalysis)}
+\item MemoryDependenceAnalysis
+\item LoopAccessAnalysis
+\item (Predicated)ScalarEvolution
+\item PolyhedralInfo
+\item DivergenceAnalysis
+\item BlockFrequencyInfo
+\end{itemize}
+\end{itemize}
+\end{column}
 
+
+\begin{column}[t]{0.45\textwidth}
+\begin{itemize}
+\item Canonicalization passes
+\begin{itemize}
+\item LoopSimplifyCFG
+\item LoopInstSimplifyPass
+\item \textbf<2->{LoopSimplify}
+\item LoopRotate
+\item \textbf<2->{LoopClosedSSA (LCSSA)}
+\item IndVarSimplify
+\end{itemize}
+\end{itemize}
+\end{column}
+\end{columns}
+
+\bigskip
+
+\begin{columns}
+\begin{column}[t]{0.45\textwidth}
+\begin{itemize}
+\item Utilities
+\begin{itemize}
+\item IVUsers
+%\item LoopInterchangeLegality
+%\item LoopInterchangeCodeModel
+%\item LoopVectorizationCostModel
+%\item UnrolledInstAnalyzer
+\item LoopVersioning
+\item SCEVExpander
+\item OptimizationRemarkEmitter
+%\iem LazyBlockFrequencyInfoPass
+\item IrreducibleGraph
+\end{itemize}
+\end{itemize}
+\end{column}
+
+
+
+\begin{column}[t]{0.45\textwidth}
+\begin{itemize}
+\item Verification
+\begin{itemize}
+\item LCSSAVerificationPass
+\end{itemize}
+\end{itemize}
+\end{column}
+\end{columns}
+
+\end{frame}
 
 \section{Loop Optimization Pipeline}
 
-%MK: Not sure whether I am going to need this; for now it's for testing whether tikzpictruew works
+\begin{comment}
+%MK: Not sure whether I am going to need this; for now it's for testing whether tikzpicture works
 \begin{frame}[fragile]{Clang/LLVM/Polly Compiler Pipeline} %MK
 \begin{resizepar}
 \begin{tikzpicture}
@@ -363,32 +421,34 @@ void example(long N) {
 \end{tikzpicture}
 \end{resizepar}
 \end{frame}
+\end{comment}
 
 
-\begin{frame}[fragile,shrink=10]{Loop Transformation Passes} %MK
+
+
+\begin{frame}[fragile,shrink=5]{Loop Transformation Passes} %MK
 %\begin{itemize}
 %\item Transformation passes:
 \begin{columns}
-\begin{column}[t]{0.45\textwidth}
+\begin{column}[t]{0.5\textwidth}
 \makeatletter
 \patchcmd{\@listI}{\itemsep3\p@}{\itemsep0em}{}{}
 \makeatother
 \begin{itemize}
-\item LoopSinkPass
+\item \textbf<2->{LoopSinkPass}
 \item LoopDataPrefech
-\item LoopLoadElimination
+\item \textbf<2->{LoopLoadElimination}
 \item LoopFuse
-\item LoopDistribution
-\item LoopVectorize
-\item LoopInvariantCodeMotion (LICM)
+\item \textbf<2->{LoopDistribution}
+\item \textbf<2->{LoopVectorize}
+\item \textbf<2->{LoopInvariantCodeMotion (LICM)}
 \item VersioningLICM
-\item LoopIdiomRecognize
-\item LoopDeletion
+\item \textbf<2->{LoopIdiomRecognize}
+\item \textbf<2->{LoopDeletion}
 \item LoopExtractor
 \item Polly
 \end{itemize}
 \end{column}
-
 \begin{column}[t]{0.5\textwidth}
 \makeatletter
 \patchcmd{\@listI}{\itemsep3\p@}{\itemsep0em}{}{}
@@ -401,7 +461,7 @@ void example(long N) {
 \item Loop(Full/Partial)Unroll
 \item LoopPredication
 \item GuardWidening
-\item (Simple)LoopUnswitch
+\item \textbf<2->{(Simple)LoopUnswitch}
 \item LoopInterchange
 \item MachinePipeliner/SwingSchedulerDAG
 \item LoopDataPrefetch
@@ -413,81 +473,22 @@ void example(long N) {
 \end{frame}
 
 
-\begin{frame}{Available Infrastructure} %MK
+
+
+
+
+
+
+
+
+
+\begin{frame}[fragile]{Default Loop Pipeline} %MK
+\vspace*{-8mm}
 \begin{columns}
-\begin{column}[t]{0.45\textwidth}
-\begin{itemize}
-\item Analysis passes
-\begin{itemize}
-\item LoopInfo
-\item MemoryDependenceAnalysis
-\item LoopAccessAnalysis
-\item (Predicated)ScalarEvolution
-\item PolyhedralInfo
-\item DivergenceAnalysis
-\item BlockFrequencyInfo
-\end{itemize}
-\end{itemize}
-\end{column}
-
-
-\begin{column}[t]{0.45\textwidth}
-\begin{itemize}
-\item Canonicalization passes
-\begin{itemize}
-\item LoopSimplify
-\item LoopRotate
-\item LoopSimplifyCFG
-\item LoopClosedSSA (LCSSA)
-\item IndVarSimplify
-\end{itemize}
-\end{itemize}
-\end{column}
-\end{columns}
-
-\bigskip
-
-\begin{columns}
-\begin{column}[t]{0.45\textwidth}
-\begin{itemize}
-\item Utilities
-\begin{itemize}
-\item IVUsers
-%\item LoopInterchangeLegality
-%\item LoopInterchangeCodeModel,I
-%\item LoopVectorizationCostModel
-%\item UnrolledInstAnalyzer
-\item LoopVersioning
-\item SCEVExpander
-\item OptimizationRemarkEmitter
-%\iem LazyBlockFrequencyInfoPass
-\item IrreducibleGraph
-\end{itemize}
-\end{itemize}
-\end{column}
-
-
-
-\begin{column}[t]{0.45\textwidth}
-\begin{itemize}
-\item Verification
-\begin{itemize}
-\item LCSSAVerificationPass
-\end{itemize}
-\end{itemize}
-
-\end{column}
-\end{columns}
-
-\end{frame}
-
-
-
-\begin{comment}
-
-\newcommand\looppasspipeline{%
-\begin{scalepar}{0.53}
+\begin{column}[t]{0.2\textwidth}
 \begin{tightcenter}
+\hspace*{-5mm}{\tiny Legacy PassManager}
+\begin{scalepar}{0.45}
 \begin{tikzpicture}
 \tikzset{tight/.style={inner sep=0pt,outer sep=0pt,minimum size=0pt}}
 \tikzset{looppass/.style={draw=teal,line width=1.2pt,rounded corners,top color=teal!50,bottom color=white,shading angle=15,drop shadow}}
@@ -497,7 +498,7 @@ void example(long N) {
 \tikzset{edge/.style={->,rounded corners}}
 
 \graph[layered layout,edges={edge},level sep=3mm]{
-  codegen[looppass,as={Clang CGOpenMPRuntime}],
+  codegen[looppass,as={Clang}],
   ir[as={IR},shape=file,draw,fill=white];
   LoopUnswitch[as={(Simple-)LoopUnswitch},looppass];
   LoopDeletion[looppass];
@@ -511,18 +512,126 @@ void example(long N) {
   LoopLoadElimination[looppass]; 
   LoopUnrollAndJam[nodedisabled];
   LoopUnroll[looppass];
+  WarnMissedTransformations[looppass];
   backend[as={\dots}];
 
-  codegen -> ir -> LoopUnswitch -> LoopIdiom -> LoopDeletion -> LoopInterchange -> LoopFullUnroll -> LoopReroll -> LoopVersioningLICM -> LoopDistribute -> LoopVectorize -> LoopLoadElimination -> LoopUnrollAndJam -> LoopUnroll -> backend;
+  codegen -> ir -> LoopUnswitch -> LoopIdiom -> LoopDeletion -> LoopInterchange -> LoopFullUnroll -> LoopReroll -> LoopVersioningLICM -> LoopDistribute -> LoopVectorize -> LoopLoadElimination -> LoopUnrollAndJam -> LoopUnroll -> WarnMissedTransformations -> backend;
 };
 \end{tikzpicture}
-\end{tightcenter}
 \end{scalepar}
-}
+\end{tightcenter}
+\end{column}
+\begin{column}[t]{0.2\textwidth}
+\begin{tightcenter}
+\hspace*{-7mm}{\tiny New PassManager}
+\begin{scalepar}{0.32}
+\begin{tikzpicture}
+\tikzset{tight/.style={inner sep=0pt,outer sep=0pt,minimum size=0pt}}
+\tikzset{looppass/.style={draw=teal,line width=1.2pt,rounded corners,top color=teal!50,bottom color=white,shading angle=15,drop shadow}}
+\tikzset{nodenoop/.style={draw=teal,line width=1.2pt,rounded corners,top color=gray!50,bottom color=white,shading angle=15,drop shadow}}
+\tikzset{nodedisabled/.style={draw=gray,line width=1.2pt,rounded corners,top color=gray!50,bottom color=white,shading angle=15,drop shadow,text=gray}}
+\tikzset{nodecallback/.style={}}
+\tikzset{supernode/.style={subgraph text none,bottom color=teal!30,top color=teal!10,shading angle=15,rounded corners}}
+\tikzset{edge/.style={->,rounded corners}}
+
+\graph[layered layout,edges={edge},level sep=1mm]{
+  codegen[looppass,as={Clang}],
+  ir[as={IR},shape=file,draw,fill=white];
+  
+  % Simplification
+  % LPM1
+  %   LoopSimplifyPass
+  %   LCSSAPass
+  LoopInstSimplify[looppass];
+  LoopSimplifyCFG[looppass];
+  LoopRotate[looppass];
+  LICM1[as={LICM},looppass];
+  LoopUnswitch[as={SimpleLoopUnswitch},looppass];
+  
+  % SimplifyCFGPass
+  % InstCombinePass
+  
+  % LPM2
+  %   LoopSimplifyPass
+  %   LCSSAPass
+  % IndVarSimplify
+  LoopIdiom[as={LoopIdiomRecognize},looppass]; 
+  LateLoopOptimizationsEPCallbacks[nodecallback];
+  LoopDeletion[looppass];
+  LoopFullUnroll[looppass];
+  LoopOptimizerEndEPCallbacks[nodecallback];
+  
+  % LPM?
+  %  LoopSimplifyPass
+  %  LCSSAPass
+  LICM2[as={LICM},looppass];
+  
+  % LPM?
+  %  LoopSimplifyPass
+  %  LCSSAPass
+  LoopDistribute[nodenoop];
+  LoopVectorize[looppass];
+  LoopLoadElimination[looppass]; 
+  % InstCombinePass
+  % SimplifyCFGPass
+  % InstCombinePass
+  LoopUnrollAndJam[nodedisabled];
+  LoopUnroll[looppass];
+  WarnMissedTransformations[looppass];
+  LICM3[as={LICM},looppass];
+  
+  % LPM?
+  %  LoopSimplifyPass
+  %  LCSSAPass
+  LoopSink[looppass]
+  
+  backend[as={\dots}];
+
+  codegen -> ir -> LoopInstSimplify -> LoopSimplifyCFG -> LoopRotate -> LICM1 -> LoopUnswitch -> 
+  LoopIdiom -> LateLoopOptimizationsEPCallbacks -> LoopDeletion -> LoopFullUnroll -> LoopOptimizerEndEPCallbacks ->
+  LICM2 -> 
+  LoopDistribute -> LoopVectorize -> LoopLoadElimination -> LoopUnrollAndJam -> LoopUnroll -> WarnMissedTransformations ->
+  LICM3 -> 
+  LoopSink -> backend;
+};
+
+\begin{pgfonlayer}{background}
+\node[fit={(LoopInstSimplify) (LoopSimplifyCFG) (LoopRotate) (LICM1) (LoopUnswitch)},supernode,label={right:LPM1}](LPM1) {};
+\node[tight,fit={(LoopIdiom) (LateLoopOptimizationsEPCallbacks) (LoopDeletion) (LoopFullUnroll) (LoopOptimizerEndEPCallbacks)},supernode,label={right:LPM2}](LPM2) {};
+\end{pgfonlayer}
+
+\end{tikzpicture}
+\end{scalepar}
+\end{tightcenter}
+\end{column}
+\begin{column}[t]{0.6\textwidth}
+\begin{itemize}
+\item<1-> Pipeline builder (Legacy/New)
+    \begin{itemize}
+    \item<2-> Passes enabled by switches\\
+        {\tiny (UnrollAndJam)}
+    \item<3-> Added passes, but do-nothing by default\\
+           {\tiny (LoopDistribute; LoopVectorize, LoopUnroll if disabled)}
+    \item<4-> Passes added in EP callbacks\\
+          {\tiny (Polly)}
+    \item<5-> Passes never added by pass builder
+    \end{itemize}
+\item<6-> Transformation order follows pass pipeline
+    \begin{itemize}
+    \item<7-> Fixpoint within \texttt{LoopPassManager} using \texttt{Updater}
+    \end{itemize}
+\item<8-> Non-loop passes in-between
+\item<9-> Some passes are \texttt{FunctionPasse}s
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
 
 
-
-\newcommand\looppassesinthepipeline{%
+\begin{comment}
+\begin{frame}{Non-Loop Passes Between Loop Passes} %MK
+\begin{columns}
+\begin{column}{0.1\textwidth}
 \begin{scalepar}{0.45}
 \begin{tightcenter}
 \begin{tikzpicture}
@@ -561,46 +670,6 @@ void example(long N) {
 \end{tikzpicture}
 \end{tightcenter}
 \end{scalepar}
-}
-
-
-
-\begin{frame}[fragile]{Static Loop Pipeline} %MK
-\begin{columns}
-\begin{column}{0.15\textwidth}
-\looppasspipeline
-\end{column}
-\begin{column}{0.85\textwidth}
-\begin{itemize}
-\item Fixed transformation order
-    \begin{itemize}
-    \item OpenMP outlining happens first
-        \begin{itemize}
-        \item Difficult to optimize afterwards
-        \end{itemize}
-    \item May conflict with source directives:
-    \begin{minted}{c}
-    #pragma distribute
-    #pragma interchange
-    for (int i = 1; i < n; i+=1)
-      for (int j = 0; j < m; j+=1) {
-        A[i][j] = i + j;
-        B[i][j] = A[i-1][j];
-      }
-    \end{minted}
-    \item OpenMP proposal: \url{https://arxiv.org/abs/1805.03374}
-    \end{itemize}
-\end{itemize}
-\end{column}
-\end{columns}
-\end{frame}
-
-
-
-\begin{frame}{Non-Loop Passes Between Loop Passes} %MK
-\begin{columns}
-\begin{column}{0.1\textwidth}
-\looppassesinthepipeline
 \end{column}
 \begin{column}{0.9\textwidth}
 \begin{itemize}
@@ -647,7 +716,7 @@ void example(long N) {
   \item Differences/pros/cons of using one over the other
   \end{itemize}
 \end{frame}
-
+\begin{comment}
 \begin{frame}[label={sec:passmanager}]{Pass Managers}
   \begin{itemize}
     \item New Pass Manager
@@ -655,7 +724,7 @@ void example(long N) {
     \item Where to put loop optimizations in the loop opt pipeline (maybe on new slide)
   \end{itemize}
 \end{frame}
-
+\end{comment}
 
 \section{Simple Loop Optimization Pass}
 \begin{frame}[label=step1]{\textbf{Demo}: Basic Loop Optimization Pass using New Pass
