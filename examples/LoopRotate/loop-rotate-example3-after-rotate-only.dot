@@ -1,0 +1,25 @@
+digraph "CFG for 'example' function" {
+	label="CFG for 'example' function";
+
+	Node0x7fb53ac2a720 [shape=record,label="{entry|{<s0>T|<s1>F}}"];
+	Node0x7fb53ac2a720:s0 -> Node0x7fb53ac300b0;
+	Node0x7fb53ac2a720:s1 -> Node0x7fb53ac2ab00;
+	Node0x7fb53ac300b0 [shape=record,label="{for.body.lr.ph}"];
+	Node0x7fb53ac300b0 -> Node0x7fb53ac2a900;
+	Node0x7fb53ac2ffb0 [shape=record,label="{for.cond.for.cond1.preheader_crit_edge}"];
+	Node0x7fb53ac2ffb0 -> Node0x7fb53ac2ab00;
+	Node0x7fb53ac2ab00 [shape=record,label="{for.cond1.preheader|{<s0>T|<s1>F}}"];
+	Node0x7fb53ac2ab00:s0 -> Node0x7fb53ac35500;
+	Node0x7fb53ac2ab00:s1 -> Node0x7fb53ac2b390;
+	Node0x7fb53ac35500 [shape=record,label="{for.body5.lr.ph}"];
+	Node0x7fb53ac35500 -> Node0x7fb53ac2b000;
+	Node0x7fb53ac2a900 [shape=record,label="{for.body|{<s0>T|<s1>F}}"];
+	Node0x7fb53ac2a900:s0 -> Node0x7fb53ac2a900;
+	Node0x7fb53ac2a900:s1 -> Node0x7fb53ac2ffb0;
+	Node0x7fb53ac2b000 [shape=record,label="{for.body5|{<s0>T|<s1>F}}"];
+	Node0x7fb53ac2b000:s0 -> Node0x7fb53ac2b000;
+	Node0x7fb53ac2b000:s1 -> Node0x7fb53ac35540;
+	Node0x7fb53ac35540 [shape=record,label="{for.cond1.for.end10_crit_edge}"];
+	Node0x7fb53ac35540 -> Node0x7fb53ac2b390;
+	Node0x7fb53ac2b390 [shape=record,label="{for.end10}"];
+}

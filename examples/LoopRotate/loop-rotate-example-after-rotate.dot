@@ -1,0 +1,10 @@
+digraph "CFG for 'example' function" {
+	label="CFG for 'example' function";
+
+	Node0x7feeecd085f0 [shape=record,label="{entry:\l  br label %for.body\l}"];
+	Node0x7feeecd085f0 -> Node0x7feeecd08870;
+	Node0x7feeecd08870 [shape=record,label="{for.body:                                         \l  %indvars.iv1 = phi i64 [ 0, %entry ], [ %indvars.iv.next, %for.body ]\l  %arrayidx = getelementptr inbounds [100 x i32], [100 x i32]* @A, i64 0, i64\l... %indvars.iv1\l  %tmp = trunc i64 %indvars.iv1 to i32\l  store i32 %tmp, i32* %arrayidx, align 4, !tbaa !3\l  %indvars.iv.next = add nuw nsw i64 %indvars.iv1, 1\l  %exitcond = icmp ne i64 %indvars.iv.next, 100\l  br i1 %exitcond, label %for.body, label %for.end\l|{<s0>T|<s1>F}}"];
+	Node0x7feeecd08870:s0 -> Node0x7feeecd08870;
+	Node0x7feeecd08870:s1 -> Node0x7feeecd08ad0;
+	Node0x7feeecd08ad0 [shape=record,label="{for.end:                                          \l  ret void\l}"];
+}

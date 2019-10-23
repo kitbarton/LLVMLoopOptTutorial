@@ -1,0 +1,19 @@
+digraph "CFG for 'example' function" {
+	label="CFG for 'example' function";
+
+	Node0x7f8e08608060 [shape=record,label="{entry:\l  br label %for.cond\l}"];
+	Node0x7f8e08608060 -> Node0x7f8e08608110;
+	Node0x7f8e08608110 [shape=record,label="{for.cond:                                         \l  %i.0 = phi i64 [ 0, %entry ], [ %inc, %for.body ]\l  %cmp = icmp slt i64 %i.0, %N\l  br i1 %cmp, label %for.body, label %for.cond1.preheader\l|{<s0>T|<s1>F}}"];
+	Node0x7f8e08608110:s0 -> Node0x7f8e08608240;
+	Node0x7f8e08608110:s1 -> Node0x7f8e08608440;
+	Node0x7f8e08608440 [shape=record,label="{for.cond1.preheader:                              \l  br label %for.cond1\l}"];
+	Node0x7f8e08608440 -> Node0x7f8e08608580;
+	Node0x7f8e08608240 [shape=record,label="{for.body:                                         \l  %conv = trunc i64 %i.0 to i32\l  %arrayidx = getelementptr inbounds [100 x i32], [100 x i32]* @A, i64 0, i64\l... %i.0\l  store i32 %conv, i32* %arrayidx, align 4, !tbaa !3\l  %inc = add nuw nsw i64 %i.0, 1\l  br label %for.cond\l}"];
+	Node0x7f8e08608240 -> Node0x7f8e08608110;
+	Node0x7f8e08608580 [shape=record,label="{for.cond1:                                        \l  %j.0 = phi i64 [ %inc9, %for.body5 ], [ 0, %for.cond1.preheader ]\l  %cmp2 = icmp slt i64 %j.0, %N\l  br i1 %cmp2, label %for.body5, label %for.end10\l|{<s0>T|<s1>F}}"];
+	Node0x7f8e08608580:s0 -> Node0x7f8e08608940;
+	Node0x7f8e08608580:s1 -> Node0x7f8e08608cd0;
+	Node0x7f8e08608940 [shape=record,label="{for.body5:                                        \l  %conv6 = trunc i64 %j.0 to i32\l  %arrayidx7 = getelementptr inbounds [100 x i32], [100 x i32]* @B, i64 0, i64\l... %j.0\l  store i32 %conv6, i32* %arrayidx7, align 4, !tbaa !3\l  %inc9 = add nuw nsw i64 %j.0, 1\l  br label %for.cond1\l}"];
+	Node0x7f8e08608940 -> Node0x7f8e08608580;
+	Node0x7f8e08608cd0 [shape=record,label="{for.end10:                                        \l  ret void\l}"];
+}

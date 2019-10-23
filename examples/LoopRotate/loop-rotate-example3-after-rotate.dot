@@ -1,0 +1,25 @@
+digraph "CFG for 'example' function" {
+	label="CFG for 'example' function";
+
+	Node0x7fb390d15b70 [shape=record,label="{entry:\l  %cmp3 = icmp slt i64 0, %N\l  br i1 %cmp3, label %for.body.lr.ph, label %for.cond1.preheader\l|{<s0>T|<s1>F}}"];
+	Node0x7fb390d15b70:s0 -> Node0x7fb390d1b500;
+	Node0x7fb390d15b70:s1 -> Node0x7fb390d15f50;
+	Node0x7fb390d1b500 [shape=record,label="{for.body.lr.ph:                                   \l  br label %for.body\l}"];
+	Node0x7fb390d1b500 -> Node0x7fb390d15d50;
+	Node0x7fb390d1b400 [shape=record,label="{for.cond.for.cond1.preheader_crit_edge:           \l  br label %for.cond1.preheader\l}"];
+	Node0x7fb390d1b400 -> Node0x7fb390d15f50;
+	Node0x7fb390d15f50 [shape=record,label="{for.cond1.preheader:                              \l  %cmp21 = icmp slt i64 0, %N\l  br i1 %cmp21, label %for.body5.lr.ph, label %for.end10\l|{<s0>T|<s1>F}}"];
+	Node0x7fb390d15f50:s0 -> Node0x7fb390d20950;
+	Node0x7fb390d15f50:s1 -> Node0x7fb390d167e0;
+	Node0x7fb390d20950 [shape=record,label="{for.body5.lr.ph:                                  \l  br label %for.body5\l}"];
+	Node0x7fb390d20950 -> Node0x7fb390d16450;
+	Node0x7fb390d15d50 [shape=record,label="{for.body:                                         \l  %i.04 = phi i64 [ 0, %for.body.lr.ph ], [ %inc, %for.body ]\l  %conv = trunc i64 %i.04 to i32\l  %arrayidx = getelementptr inbounds [100 x i32], [100 x i32]* @A, i64 0, i64\l... %i.04\l  store i32 %conv, i32* %arrayidx, align 4, !tbaa !3\l  %inc = add nuw nsw i64 %i.04, 1\l  %cmp = icmp slt i64 %inc, %N\l  br i1 %cmp, label %for.body, label %for.cond.for.cond1.preheader_crit_edge\l|{<s0>T|<s1>F}}"];
+	Node0x7fb390d15d50:s0 -> Node0x7fb390d15d50;
+	Node0x7fb390d15d50:s1 -> Node0x7fb390d1b400;
+	Node0x7fb390d16450 [shape=record,label="{for.body5:                                        \l  %j.02 = phi i64 [ 0, %for.body5.lr.ph ], [ %inc9, %for.body5 ]\l  %conv6 = trunc i64 %j.02 to i32\l  %arrayidx7 = getelementptr inbounds [100 x i32], [100 x i32]* @B, i64 0, i64\l... %j.02\l  store i32 %conv6, i32* %arrayidx7, align 4, !tbaa !3\l  %inc9 = add nuw nsw i64 %j.02, 1\l  %cmp2 = icmp slt i64 %inc9, %N\l  br i1 %cmp2, label %for.body5, label %for.cond1.for.end10_crit_edge\l|{<s0>T|<s1>F}}"];
+	Node0x7fb390d16450:s0 -> Node0x7fb390d16450;
+	Node0x7fb390d16450:s1 -> Node0x7fb390d20990;
+	Node0x7fb390d20990 [shape=record,label="{for.cond1.for.end10_crit_edge:                    \l  br label %for.end10\l}"];
+	Node0x7fb390d20990 -> Node0x7fb390d167e0;
+	Node0x7fb390d167e0 [shape=record,label="{for.end10:                                        \l  ret void\l}"];
+}

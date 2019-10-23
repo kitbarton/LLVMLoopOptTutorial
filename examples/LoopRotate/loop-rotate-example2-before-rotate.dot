@@ -1,0 +1,12 @@
+digraph "CFG for 'example' function" {
+	label="CFG for 'example' function";
+
+	Node0x7fcdf6d1f050 [shape=record,label="{entry:\l  br label %for.cond\l}"];
+	Node0x7fcdf6d1f050 -> Node0x7fcdf6d1f100;
+	Node0x7fcdf6d1f100 [shape=record,label="{for.cond:                                         \l  %i.0 = phi i64 [ 0, %entry ], [ %inc, %for.body ]\l  %cmp = icmp slt i64 %i.0, %N\l  br i1 %cmp, label %for.body, label %for.end\l|{<s0>T|<s1>F}}"];
+	Node0x7fcdf6d1f100:s0 -> Node0x7fcdf6d1f230;
+	Node0x7fcdf6d1f100:s1 -> Node0x7fcdf6d1f430;
+	Node0x7fcdf6d1f230 [shape=record,label="{for.body:                                         \l  %conv = trunc i64 %i.0 to i32\l  %arrayidx = getelementptr inbounds [100 x i32], [100 x i32]* @A, i64 0, i64\l... %i.0\l  store i32 %conv, i32* %arrayidx, align 4, !tbaa !3\l  %inc = add nuw nsw i64 %i.0, 1\l  br label %for.cond\l}"];
+	Node0x7fcdf6d1f230 -> Node0x7fcdf6d1f100;
+	Node0x7fcdf6d1f430 [shape=record,label="{for.end:                                          \l  ret void\l}"];
+}
