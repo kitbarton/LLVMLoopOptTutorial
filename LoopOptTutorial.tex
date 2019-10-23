@@ -155,7 +155,7 @@
   \item Loop guard
   \item Irreducible loops (not covered)
   \end{itemize}
-  Documentated at: \url{https://llvm.org/docs/LoopTerminology.html}
+  Documented at: \url{https://llvm.org/docs/LoopTerminology.html}
 \end{frame}
 
 %% \begin{frame}[label={sec:rotated}]{Rotated Loops}
@@ -809,23 +809,31 @@ void example(long N) {
 \end{frame}
 
 \begin{frame}[label=DDGExample1]{Data Dependence Graph Example}
-  \begin{itemize}
-    \item Example code contains a statement that has a loop carried data dependence on itself
-    \item Instructions (nodes) are connected by edges to represent dependencies (def-use and memory)
-    \item Def-use relations and a memory access dependency form a cycle representing the loop carried dependence.
-  \end{itemize}
-  \includegraphics[width=\textwidth]{figures/DDG1.png}
+  \begin{minipage}[t][0.4\textheight][t]{\textwidth}
+    \begin{itemize}
+      \item Example code contains a statement that has a loop carried data dependence on itself
+      \item Instructions (nodes) are connected by edges to represent dependencies (def-use and memory)
+      \item Def-use relations and a memory access dependency form a cycle representing the loop carried dependence.
+    \end{itemize}
+  \end{minipage}
+  \begin{minipage}[b][0.6\textheight][t]{\textwidth}
+    \includegraphics<2->[width=\textwidth]{figures/DDG1.png}
+  \end{minipage}
 \end{frame}
 
 \begin{frame}[label=DDGExample2]{Data Dependence Graphs Example}
-  \begin{itemize}
-    \item The DDG corresponding to the example contains a pi-block 
-    \item The pi-block groups the nodes that participate in the dependency cycle.
-    \item The resulting graph is acyclic.
-  \end{itemize}
-  \begin{figure}[h]
-  \includegraphics[width=0.55\textwidth]{figures/cycle_pi.png}
-  \end{figure}
+  \begin{minipage}[t][0.2\textheight][t]{\textwidth}
+    \begin{itemize}
+      \item The DDG corresponding to the example contains a pi-block 
+      \item The pi-block groups the nodes that participate in the dependency cycle.
+      \item The resulting graph is acyclic.
+    \end{itemize}
+  \end{minipage}
+  \begin{minipage}[b][0.8\textheight][t]{\textwidth}
+    \begin{figure}[h]
+      \includegraphics<2->[width=0.55\textwidth]{figures/cycle_pi.png}
+    \end{figure}
+  \end{minipage}
 \end{frame}
 
 \begin{frame}[label=DDGLLVM]{Data Dependence Graphs in LLVM}
