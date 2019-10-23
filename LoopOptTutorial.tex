@@ -446,6 +446,7 @@ void example(long N) {
 \item \textbf<2->{LoopIdiomRecognize}
 \item \textbf<2->{LoopDeletion}
 \item LoopExtractor
+\item LoopDataPrefetch
 \item Polly
 \end{itemize}
 \end{column}
@@ -464,7 +465,6 @@ void example(long N) {
 \item \textbf<2->{(Simple)LoopUnswitch}
 \item LoopInterchange
 \item MachinePipeliner/SwingSchedulerDAG
-\item LoopDataPrefetch
 \item StructurizeCFG 
 \item WebAssemblyFixIrreducibleControlFlow
 \end{itemize}
@@ -537,6 +537,7 @@ void example(long N) {
 \graph[layered layout,edges={edge},level sep=1mm]{
   codegen[looppass,as={Clang}],
   ir[as={IR},shape=file,draw,fill=white];
+  backend[as={\dots}];
   
   % Simplification
   % LPM1
@@ -618,10 +619,10 @@ void example(long N) {
     \end{itemize}
 \item<6-> Transformation order follows pass pipeline
     \begin{itemize}
-    \item<7-> Fixpoint within \texttt{LoopPassManager} using \texttt{Updater}
+    \item Fixpoint within \texttt{LoopPassManager} using \texttt{Updater}
     \end{itemize}
-\item<8-> Non-loop passes in-between
-\item<9-> Some passes are \texttt{FunctionPasse}s
+\item<7-> Non-loop passes in-between
+\item<8-> Some passes are \texttt{FunctionPasse}s
 \end{itemize}
 \end{column}
 \end{columns}
@@ -709,13 +710,75 @@ void example(long N) {
 %%     \end{itemize}
 %% \end{frame}
 
-\begin{frame}[label={sec:looppass}]{Loop Pass vs Function Pass}
-  \begin{itemize}
-  \item What is a loop pass
-  \item What is a function pass
-  \item Differences/pros/cons of using one over the other
-  \end{itemize}
+
+\begin{frame}[fragile,label={sec:looppass}]{Function Pass}
+
+\begin{block}{LoopVectorize}
+\begin{minted}[fontsize=\small]{cpp}
+struct LoopVectorizePass : public PassInfoMixin<LoopVectorizePass> {
+
+PreservedAnalyses run(Function &F, FunctionAnalysisManager &AM) {
+  auto &LI = AM.getResult<LoopAnalysis>(F);
+  for (auto &L : *LI) { // recursive
+    simplifyLoop(L, DT, LI, SE, AC, nullptr, false);
+    Worklist.push_back(&L); 
+  }
+  while (!Worklist.empty()) 
+    processLoop(L);
+  return PA:
+}
+\end{minted}
+\end{block}
+%
+%\begin{block}{Loop Pass}
+%\begin{minted}{cpp}
+%PreservedAnalyses LoopSimplifyCFGPass::run(Loop &L, LoopAnalysisManager &AM,
+%                                           LoopStandardAnalysisResults &AR,
+%                                           LPMUpdater &LPMU) {
+%\end{minted}
+%\end{block}
 \end{frame}
+
+
+
+\begin{frame}[fragile,label={sec:looppass}]{Loop Pass vs. Function Pass}
+
+\begin{exampleblock}<1->{Recommendation: Consider a FunctionPass First}
+\begin{itemize}
+\item Better maintained
+\item No LoopPassManager needed
+    \begin{itemize}
+    \item May require adding function analyses by proxy
+    \end{itemize}
+\item No requirement to preserve DominatorTree,LoopAnalysis,LoopSimplify,LCSSA
+\item Control over loop processing order / reprocessing behavior
+\end{itemize}
+\end{exampleblock}
+
+
+\begin{exampleblock}<2->{Reasons to Write a LoopPass}
+\begin{itemize}
+\item Apply multiple passes on same loop before processing nest
+\begin{itemize}
+\item {\footnotesize i.a. Improved locality}
+\end{itemize}
+\item Share reprocessing behavior with other loop passes
+\item Add pass at the Loop EP Callbacks
+\item Analysis used by other loop passes
+\end{itemize}
+\end{exampleblock}
+
+\begin{comment}
+\begin{itemize}
+\item<3-> A function pass can use loop analyses / vice versa
+\item<3-> A loop pass can be added to a FunctionPassManager using \cppinline{createFunctionToLoopPassAdaptor(...)}
+\end{itemize}
+\end{comment}
+
+\end{frame}
+
+
+
 \begin{comment}
 \begin{frame}[label={sec:passmanager}]{Pass Managers}
   \begin{itemize}
