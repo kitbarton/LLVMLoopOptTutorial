@@ -55,6 +55,14 @@
 \pgfdeclareimage[height=0.5cm]{anl-logo}{figures/anl-symbol} % MK: Feel free to replace with smaller logo
 \logo{\pgfuseimage{anl-logo}\hspace*{.9\linewidth}\pgfuseimage{ibm-logo}}
 
+\setbeamercovered{transparent}
+
+
+\setlength{\TPHorizModule}{30mm}
+\setlength{\TPVertModule}{\TPHorizModule}
+\textblockorigin{10mm}{10mm} % start everything near the top-left corner
+\setlength{\parindent}{0pt}
+
 \begin{document}
 
 % Create the title page
@@ -76,10 +84,8 @@
 
   % KB: I will clean this slide up and make it into a proper beamer slide, with
   % animations, if everyone is OK with how it looks.
-  \includegraphics[width=\textwidth]{figures/LoopRepresentation.png}
+  \includegraphics[width=\textwidth]{figures/LoopRepresentation.pdf}
 \end{frame}
-
-
 
 \begin{frame}[label=loopnormalform,fragile]{Canonical Loop Form} %MK
 %%\framesubtitle{MK: Feel free to re-use/eliminate this slide; maybe it's useful}
@@ -157,39 +163,82 @@
 
 
 \begin{frame}[label={sec:orgac3eb21}]{Other Terminology}
-  \begin{block}{}
-    \begin{itemize}
-    \item Loop predecessor
-    \item Backedge taken count
-    \item Iteration count
-    \item Loop guard
-    \item Irreducible loops (not covered)
-    \end{itemize}
-  \end{block}
+  \begin{itemize}
+  \item Loop predecessor
+  \item Backedge taken count
+  \item Iteration count
+  \item Loop guard
+  \item Irreducible loops (not covered)
+  \end{itemize}
+  Documentated at: \url{https://arxiv.org/abs/1805.03374}
 \end{frame}
 
-\begin{frame}[label={sec:rotated}]{Rotated Loops}
-  \includegraphics[width=\textwidth]{figures/LoopRotationSimplified.pdf}
+%% \begin{frame}[label={sec:rotated}]{Rotated Loops}
+%%   \includegraphics[width=\textwidth]{figures/LoopRotationSimplified.pdf}
+%% \end{frame}
 
-  %% \begin{itemize}
-  %% \item Loop has a latch and the latch is the exiting block
-  %% \end{itemize}
-  %% \begin{itemize}
-  %%   \item Give some examples of rotated loops
-  %%   \item Limitations of loop rotation
-  %% \end{itemize}
+\begin{frame}[fragile,shrink=0]{Rotated Loops}
+  \begin{columns}
+    \begin{column}{0.75\textwidth}
+      \begin{itemize}
+      \item Convert a loop into a \mintinline{c}{do/while} style loop
+      \item Canonicalize loop latch to have a single predecessor
+      \end{itemize}
+    \end{column}
+    \begin{column}<2->{0.25\textwidth}
+      \begin{minted}[frame=single,fontsize=\tiny]{c}
+int A[100];
+int B[100];
+void example() {
+  for (int i = 0; i < 100; ++i)
+    A[i] = i;
+}
+      \end{minted}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}<3->{0.5\textwidth}
+      \includegraphics<3->[width=\textwidth]{examples/LoopRotate/loop-rotate-example-before-rotate.pdf}
+    \end{column}
+    \begin{column}<4->{0.5\textwidth}
+      \includegraphics<4->[width=\textwidth]{examples/LoopRotate/loop-rotate-example-after-rotate.pdf}
+    \end{column}
+  \end{columns}
 \end{frame}
 
-\begin{frame}[label={sec:rotated}]{Rotated Loops - Guarded Loops}
-  \includegraphics[width=\textwidth]{figures/LoopRotationGuardedSimplified.pdf}
+%% \Begin{frame}[label={sec:rotated}]{Rotated Loops - Guarded Loops}
+%%   \includegraphics[width=\textwidth]{figures/LoopRotationGuardedSimplified.pdf}
+%% \end{frame}
 
-  %% \begin{itemize}
-  %% \item Loop has a latch and the latch is the exiting block
-  %% \end{itemize}
-  %% \begin{itemize}
-  %%   \item Give some examples of rotated loops
-  %%   \item Limitations of loop rotation
-  %% \end{itemize}
+\begin{frame}[fragile,shrink=10]{Rotated Loops - Guarded Loops}
+  \begin{columns}
+    \begin{column}{0.75\textwidth}
+      \begin{itemize}
+      \item When the compiler cannot prove loop body will execute at least once,
+        it inserts a \emph{guard}
+      \item It also inserts a loop epilogue, that will be executed once after
+        the body is finished executing
+      \end{itemize}
+    \end{column}
+    \begin{column}<2->{0.25\textwidth}
+      \begin{minted}[frame=single,fontsize=\tiny]{c}
+int A[100];
+int B[100];
+void example(long N) {
+  for (long i = 0; i < N; ++i)
+    A[i] = i;
+}
+      \end{minted}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}<3->{0.5\textwidth}
+      \includegraphics<3->[width=\textwidth]{examples/LoopRotate/loop-rotate-example2-before-rotate.pdf}
+    \end{column}
+    \begin{column}<4->{0.5\textwidth}
+      \includegraphics<4->[width=\textwidth]{examples/LoopRotate/loop-rotate-example2-after-rotate.pdf}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}[label={sec:SimplifyForm}]{Simplify Form}
