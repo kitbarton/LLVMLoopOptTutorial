@@ -794,11 +794,11 @@ PreservedAnalyses run(Function &F, FunctionAnalysisManager &AM) {
     Manager}
 
   \begin{itemize}
-  \item Step 1: Basic loop optimization template [https://github.com/kitbarton/llvm-project/pull/1]
-  \item Step 2: Select/Filter candidate loops    [https://github.com/kitbarton/llvm-project/pull/2]
-  \item Step 3: Add code to split a candidate loop [https://github.com/kitbarton/llvm-project/pull/3]
-  \item Step 4: Use DomTreeUpdater to update the dominator tree [https://github.com/kitbarton/llvm-project/pull/4]
-  \item Step 5: Use STATISTICS and OpmizationRemarkEmitter to report outcome [https://github.com/kitbarton/llvm-project/pull/5]
+  \item<1-> Step 1: Basic loop optimization template [https://github.com/kitbarton/llvm-project/pull/1]
+  \item<2-> Step 2: Select/Filter candidate loops    [https://github.com/kitbarton/llvm-project/pull/2]
+  \item<3-> Step 3: Add code to split a candidate loop [https://github.com/kitbarton/llvm-project/pull/3]
+  \item<4-> Step 4: Use DomTreeUpdater to update the dominator tree [https://github.com/kitbarton/llvm-project/pull/4]
+  \item<5-> Step 5: Use STATISTICS and OpmizationRemarkEmitter to report outcome [https://github.com/kitbarton/llvm-project/pull/5]
   \end{itemize}
 \end{frame}
 
@@ -858,7 +858,8 @@ PreservedAnalyses run(Function &F, FunctionAnalysisManager &AM) {
 %% \end{frame}
 
 \section{Ongoing Work}
-\begin{frame}[label={sec:DepGraphs}]{Dependence Graphs}
+\begin{frame}[fragile,label={sec:DepGraphs}]{Dependence Graphs}
+  \begin{exampleblock}<1->{Data Dependency Graphs Theory}
   \begin{itemize}
     \item Represents data dependencies between program elements (instructions)
     \item Ideas: 
@@ -866,35 +867,44 @@ PreservedAnalyses run(Function &F, FunctionAnalysisManager &AM) {
       \item D.J. Kuck, R.H. Kuhn, D.A. Padua, B. Leasure, and M. Wolfe (1981). Deendence Graphs and Compiler Optimizations. 
       \item J. Ferrante, K.J. Ottenstein and Joe D. Warren (1987). The Program Dependence Graph and Its Use in Optimizations.
     \end{itemize}
+  \end{itemize}
+  \end{exampleblock}
+
+  \begin{exampleblock}<2->{Dependency Graphs Types}
+  \begin{itemize}
     \item Data Dependence Graph (DDG): hierarchical representation, nodes that are part of an SCC grouped into pi-blocks
     \item Program Dependence Graph (PDG): capable of representing both data dependencies and control-flow dependencies
   \end{itemize}
+  \end{exampleblock}
 \end{frame}
 
-\begin{frame}[label=DDGExample1]{Data Dependence Graph Example}
-  \begin{minipage}[t][0.4\textheight][t]{\textwidth}
+\begin{frame}[fragile,label=DDGExample1]{Data Dependence Graph Example}
+ \begin{minipage}[t][0.3\textheight][t]{\textwidth}
+  \begin{exampleblock}{\small Loop with a loop carried data dependence}
     \begin{itemize}
-      \item Example code contains a statement that has a loop carried data dependence on itself
-      \item Instructions (nodes) are connected by edges to represent dependencies (def-use and memory)
-      \item Def-use relations and a memory access dependency form a cycle representing the loop carried dependence.
+      \item \tiny Example code contains a statement that has a loop carried data dependence on itself
+      \item \tiny Instructions (nodes) are connected by edges to represent dependencies (def-use and memory)
+      \item \tiny Def-use relations and a memory access dependency form a cycle representing the loop carried dependence.
     \end{itemize}
+    \end{exampleblock}
   \end{minipage}
-  \begin{minipage}[b][0.6\textheight][t]{\textwidth}
-    \includegraphics<2->[width=\textwidth]{figures/DDG1.png}
+  \begin{minipage}[b][0.7\textheight][t]{\textwidth}
+    \includegraphics[width=\textwidth]{figures/DDG1.png}
   \end{minipage}
 \end{frame}
 
-\begin{frame}[label=DDGExample2]{Data Dependence Graphs Example}
+\begin{frame}[fragile,label=DDGExample2]{Data Dependence Graphs Example}
   \begin{minipage}[t][0.2\textheight][t]{\textwidth}
+    \begin{exampleblock}{\small Pi Block in the data dependence graph}
     \begin{itemize}
-      \item The DDG corresponding to the example contains a pi-block 
-      \item The pi-block groups the nodes that participate in the dependency cycle.
-      \item The resulting graph is acyclic.
+      \item \tiny The DDG corresponding to the example contains a pi-block 
+      \item \tiny The pi-block groups the nodes that participate in the dependency cycle. The resulting graph is acyclic.
     \end{itemize}
+    \end{exampleblock}
   \end{minipage}
-  \begin{minipage}[b][0.8\textheight][t]{\textwidth}
+  \begin{minipage}[b][0.7\textheight][t]{\textwidth}
     \begin{figure}[h]
-      \includegraphics<2->[width=0.55\textwidth]{figures/cycle_pi.png}
+      \includegraphics[width=0.55\textwidth]{figures/cycle_pi.png}
     \end{figure}
   \end{minipage}
 \end{frame}
@@ -904,12 +914,16 @@ PreservedAnalyses run(Function &F, FunctionAnalysisManager &AM) {
   \item Directed Graph: D64088 (base class for various dependence graphs)
   \item Data Dependence Graph (DDG): D65350 (basic framework), D67970 (root-node), ...  
   \item Program Dependence Graph (PDG): will follow after DDG (leverage common graph builder)
-  \item Envisioned Consumers:
+  \item<2-> Potential Future Consumers for DDG/PDG:
     \begin{itemize}
-    \item Loop Fusion
-    \item Loop Fission
+    \item Loop Fission/Distribution (definetely)
+    \item Loop Fusion (maybe)
+    \item Consider using this infrastructure in your pass
     \end{itemize}
   \end{itemize}
+\end{frame}
+
+\begin{frame}[label=Questions]{Questions?}
 \end{frame}
 
 \end{document}
