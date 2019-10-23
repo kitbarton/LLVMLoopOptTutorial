@@ -81,79 +81,79 @@
   \includegraphics[width=\textwidth]{figures/LoopRepresentation.pdf}
 \end{frame}
 
-\begin{frame}[label=loopnormalform,fragile]{Canonical Loop Form} %MK
-%%\framesubtitle{MK: Feel free to re-use/eliminate this slide; maybe it's useful}
-\begin{columns}
-\begin{column}{0.6\textwidth}
-\begin{itemize}
-\item Loop identified by header
-\item Preheader
-\item Single backedge/latch
-\item Exits only from loop
-\item Loop-rotated form\\(at least one iteration / loop guard)
-    \begin{itemize}
-    \item Can hoist invariant loads
-    \end{itemize}
-\item Loop-Closed SSA
+%% \begin{frame}[label=loopnormalform,fragile]{Canonical Loop Form} %MK
+%% %%\framesubtitle{MK: Feel free to re-use/eliminate this slide; maybe it's useful}
+%% \begin{columns}
+%% \begin{column}{0.6\textwidth}
+%% \begin{itemize}
+%% \item Loop identified by header
+%% \item Preheader
+%% \item Single backedge/latch
+%% \item Exits only from loop
+%% \item Loop-rotated form\\(at least one iteration / loop guard)
+%%     \begin{itemize}
+%%     \item Can hoist invariant loads
+%%     \end{itemize}
+%% \item Loop-Closed SSA
 
-%\item Responsible passes
-%\begin{itemize}
-%\item LoopRotate
-%\item LoopSimplify
-%\item IndVarSimplify
-%\item LCSSA
-%\end{itemize}
-\end{itemize}
+%% %\item Responsible passes
+%% %\begin{itemize}
+%% %\item LoopRotate
+%% %\item LoopSimplify
+%% %\item IndVarSimplify
+%% %\item LCSSA
+%% %\end{itemize}
+%% \end{itemize}
 
 
-\end{column}
-\begin{column}{0.4\textwidth}
-\begin{tightcenter}
-\begin{scaleenv}{0.7}
-\begin{tikzpicture}
-\tikzset{tight/.style={inner sep=0pt,outer sep=0pt,minimum size=0pt}}
-\tikzset{invisible/.style={draw=none,fill=none,text=white}}
+%% \end{column}
+%% \begin{column}{0.4\textwidth}
+%% \begin{tightcenter}
+%% \begin{scaleenv}{0.7}
+%% \begin{tikzpicture}
+%% \tikzset{tight/.style={inner sep=0pt,outer sep=0pt,minimum size=0pt}}
+%% \tikzset{invisible/.style={draw=none,fill=none,text=white}}
 
-\tikzset{node/.style={line width=1.2pt,rounded corners,bottom color=white,shading angle=15,drop shadow}}
-\tikzset{bb/.style={node,draw=teal,top color=teal!50}}
+%% \tikzset{node/.style={line width=1.2pt,rounded corners,bottom color=white,shading angle=15,drop shadow}}
+%% \tikzset{bb/.style={node,draw=teal,top color=teal!50}}
 
-\graph [layered layout,edges={->},sibling distance=2cm,level distance=12mm]{
-    enter1[as={}];
-    enter2[as={}];
-    guard[bb,as={Guard}];
-    preheader[bb,as={Preheader}];
-    header[bb,as={Header}];
-    exiting[bb,as={Exiting}];
-    exit[bb,as={Exit}];
-    merge[bb,as={\phantom{MMM}}];
-    latch[bb,as={Latch}];
-    afterexit[as={}];
+%% \graph [layered layout,edges={->},sibling distance=2cm,level distance=12mm]{
+%%     enter1[as={}];
+%%     enter2[as={}];
+%%     guard[bb,as={Guard}];
+%%     preheader[bb,as={Preheader}];
+%%     header[bb,as={Header}];
+%%     exiting[bb,as={Exiting}];
+%%     exit[bb,as={Exit}];
+%%     merge[bb,as={\phantom{MMM}}];
+%%     latch[bb,as={Latch}];
+%%     afterexit[as={}];
     
-    {enter1,enter2}->guard;
-    guard->preheader;
-    guard->merge;
-    preheader->header;  
-    header->exiting;
-    exiting->exit;
-%    exiting->latch;
-    latch->[thick,out=90,in=180]header;
-    exit->merge;
-    merge->afterexit;
+%%     {enter1,enter2}->guard;
+%%     guard->preheader;
+%%     guard->merge;
+%%     preheader->header;  
+%%     header->exiting;
+%%     exiting->exit;
+%% %    exiting->latch;
+%%     latch->[thick,out=90,in=180]header;
+%%     exit->merge;
+%%     merge->afterexit;
     
-    {[edge={draw=none}]
-      header->latch,
-      latch->exiting
-    };
-};
+%%     {[edge={draw=none}]
+%%       header->latch,
+%%       latch->exiting
+%%     };
+%% };
 
-\path (latch) edge[draw=none,decorate,decoration={text along path,text={Backedge}},out=90,in=180] (header);
-\path (exiting) edge[->,in=270,out=180] (latch);
-\end{tikzpicture}
-\end{scaleenv}
-\end{tightcenter}
-\end{column}
-\end{columns}
-\end{frame}
+%% \path (latch) edge[draw=none,decorate,decoration={text along path,text={Backedge}},out=90,in=180] (header);
+%% \path (exiting) edge[->,in=270,out=180] (latch);
+%% \end{tikzpicture}
+%% \end{scaleenv}
+%% \end{tightcenter}
+%% \end{column}
+%% \end{columns}
+%% \end{frame}
 
 
 \begin{frame}[label={sec:orgac3eb21}]{Other Terminology}
@@ -303,7 +303,7 @@ void example(long N) {
 
 
 
-
+\section{Loop Optimization Pipeline}
 
 %MK: Not sure whether I am going to need this; for now it's for testing whether tikzpictruew works
 \begin{frame}[fragile]{Clang/LLVM/Polly Compiler Pipeline} %MK
@@ -640,7 +640,6 @@ void example(long N) {
 %%     \end{itemize}
 %% \end{frame}
 
-\section{Considerations when writing a loop pass}
 \begin{frame}[label={sec:looppass}]{Loop Pass vs Function Pass}
   \begin{itemize}
   \item What is a loop pass
@@ -672,31 +671,31 @@ void example(long N) {
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Preserved Analysis in Loop Passes}
-  \begin{columns}
-    \begin{column}{0.45\textwidth}
-      \begin{minted}[fontsize=\tiny,linenos]{c}
-PreservedAnalyses llvm::getLoopPassPreservedAnalyses() {
-  PreservedAnalyses PA;
-  PA.preserve<DominatorTreeAnalysis>();
-  PA.preserve<LoopAnalysis>();
-  PA.preserve<LoopAnalysisManagerFunctionProxy>();
-  PA.preserve<ScalarEvolutionAnalysis>();r
-  // FIXME: What we really want to do here is preserve
-  // an AA category, but that concept doesn't exist yet.
-  PA.preserve<AAManager>();
-  PA.preserve<BasicAA>();
-  PA.preserve<GlobalsAA>();
-  PA.preserve<SCEVAA>();
-  return PA;
-}
-      \end{minted}
-    \end{column}
-    \begin{column}{0.45\textwidth}
-      Need to say something here
-    \end{column}
-  \end{columns}
-\end{frame}
+%% \begin{frame}[fragile]{Preserved Analysis in Loop Passes}
+%%   \begin{columns}
+%%     \begin{column}{0.45\textwidth}
+%%       \begin{minted}[fontsize=\tiny,linenos]{c}
+%% PreservedAnalyses llvm::getLoopPassPreservedAnalyses() {
+%%   PreservedAnalyses PA;
+%%   PA.preserve<DominatorTreeAnalysis>();
+%%   PA.preserve<LoopAnalysis>();
+%%   PA.preserve<LoopAnalysisManagerFunctionProxy>();
+%%   PA.preserve<ScalarEvolutionAnalysis>();r
+%%   // FIXME: What we really want to do here is preserve
+%%   // an AA category, but that concept doesn't exist yet.
+%%   PA.preserve<AAManager>();
+%%   PA.preserve<BasicAA>();
+%%   PA.preserve<GlobalsAA>();
+%%   PA.preserve<SCEVAA>();
+%%   return PA;
+%% }
+%%       \end{minted}
+%%     \end{column}
+%%     \begin{column}{0.45\textwidth}
+%%       Need to say something here
+%%     \end{column}
+%%   \end{columns}
+%% \end{frame}
 
 %% \begin{frame}[label=step2]{Checking For Valid Candidates}{\textbf{Kit to do}}
 %% \end{frame}
@@ -727,7 +726,7 @@ PreservedAnalyses llvm::getLoopPassPreservedAnalyses() {
 %%     \end{itemize}
 %% \end{frame}
 
-\section{Dependence Graphs}
+\section{Ongoing Work}
 \begin{frame}[label={sec:DepGraphs}]{Dependence Graphs}
   \begin{itemize}
     \item Represents data dependencies between program elements (instructions)
